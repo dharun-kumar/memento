@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +22,20 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+    }
+
+    // Static assets (WebJars, Swagger UI, API docs) are excluded from the security
+    // filter chain entirely. This is more reliable than permitAll() inside a chain
+    // because Spring Security 7.x uses MVC-based requestMatchers by default — paths
+    // that have no @Controller mapping (like /webjars/**) can fail to match, causing
+    // unauthenticated requests to be redirected to /login even when permitAll is set.
+    // web.ignoring() bypasses the chain before any matcher runs, so it always works.
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers("/webjars/**")          // Bootstrap CSS/JS from JAR
+                .requestMatchers("/swagger-ui/**")       // Swagger UI static files
+                .requestMatchers("/v3/api-docs/**");     // OpenAPI JSON spec
     }
 
     // JwtAuthFilter is a @Component so Spring can inject it via constructor above.
@@ -88,10 +103,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/**").permitAll()                       // health check — open for monitoring
-                .requestMatchers("/login").permitAll()                             // login page — must be public
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // API docs — open for agent discovery
-                .anyRequest().authenticated()                                      // everything else needs login
+                .requestMatchers("/actuator/**").permitAll() // health check — open for monitoring
+                .requestMatchers("/login").permitAll()       // login page — must be public
+                .anyRequest().authenticated()               // everything else needs login
             )
 
             // formLogin sets up two things:
