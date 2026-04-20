@@ -24,6 +24,11 @@ dependencies {
 	// Thymeleaf — server-side HTML templates (login.html, token.html)
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
+	// WebJars — serves Bootstrap CSS/JS directly from the JAR instead of a CDN.
+	// Avoids CDN latency, regional blocks, and external network dependency.
+	implementation("org.webjars:bootstrap:5.3.3")
+	implementation("org.webjars:webjars-locator-lite:1.0.0")
+
 	// database
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	runtimeOnly("org.postgresql:postgresql")

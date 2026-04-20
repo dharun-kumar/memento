@@ -53,6 +53,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // Skip rate limiting for static assets — Swagger UI loads ~7 files per page
+        // (JS, CSS, icons, api-docs) and WebJars Bootstrap also serves static files.
+        // Counting these against the per-IP token budget would throttle normal page loads.
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/swagger-ui/") || uri.startsWith("/webjars/") || uri.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String ip = request.getRemoteAddr();
         // computeIfAbsent atomically creates a bucket for new IPs — safe under concurrent load
         Bucket bucket = buckets.computeIfAbsent(ip, k -> newBucket());
