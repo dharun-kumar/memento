@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Memento — Your Token</title>
+    <!-- Bootstrap served from the app JAR via WebJars — no CDN dependency -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center" style="min-height:100vh">
+    <div class="card shadow p-4" style="max-width:600px;width:100%">
+        <h4 class="mb-1">Welcome, <span th:text="${username}"></span></h4>
+        <p class="text-muted mb-3">Copy your token and share it with your AI agent.</p>
+
+        <label class="form-label fw-semibold">JWT Token</label>
+        <div class="input-group mb-3">
+            <textarea id="token" class="form-control font-monospace" rows="4" readonly th:text="${token}"></textarea>
+        </div>
+
+        <!-- Copy button: uses clipboard API on HTTPS, falls back to execCommand on plain HTTP -->
+        <button id="copyBtn" class="btn btn-primary mb-3" onclick="copyToken(this)">
+            Copy Token
+        </button>
+
+        <hr>
+        <p class="text-muted small mb-2">Token expires in 24 hours. Visit this page again to generate a new one.</p>
+        <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+    </div>
+
+    <script>
+        function copyToken(btn) {
+            var text = document.getElementById('token').value;
+
+            function markCopied() {
+                btn.textContent = 'Copied!';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
+            }
+
+            // navigator.clipboard requires HTTPS (secure context).
+            // Falls back to execCommand for plain HTTP in production.
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(markCopied);
+            } else {
+                var el = document.getElementById('token');
+                el.select();
+                document.execCommand('copy');
+                markCopied();
+            }
+        }
+    </script>
+</body>
+</html>

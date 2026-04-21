@@ -1,0 +1,9 @@
+# Exclude files that don't belong inside the Docker build context.
+# Smaller context = faster docker build.
+
+.git
+.github
+.gradle
+build
+*.md
+docs

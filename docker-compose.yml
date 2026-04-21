@@ -1,0 +1,74 @@
+# Used on the VPS. Pulls the pre-built image from GitHub Container Registry.
+# GitHub Actions builds and pushes the image on every push to main.
+#
+# APP_IMAGE must be set in .env — e.g. ghcr.io/your-username/memento:latest
+#
+# DB DATA IS SAFE across app restarts/upgrades. postgres_data is a named volume
+# stored outside the container. Only `docker compose down -v` destroys it.
+
+services:
+
+  # ── PostgreSQL 17 Alpine ──────────────────────────────────────────────────────
+  # Alpine variant (~100 MB) vs full Debian image (~400 MB).
+  # Memory tuned for a 1 GB VPS — Postgres defaults are sized for much larger machines.
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: memento
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    # shared_buffers: data cache (default 128 MB → 32 MB)
+    # work_mem: per sort/join operation (default 4 MB → 2 MB)
+    # max_connections: our HikariCP pool is 3, so 20 is plenty
+    command: >
+      postgres
+      -c shared_buffers=32MB
+      -c effective_cache_size=64MB
+      -c work_mem=2MB
+      -c maintenance_work_mem=16MB
+      -c max_connections=20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SPRING_DATASOURCE_USERNAME} -d memento"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 200m
+          cpus: '0.5'
+
+  # ── Spring Boot App ────────────────────────────────────────────────────────────
+  app:
+    image: ${APP_IMAGE}   # set in .env: ghcr.io/your-username/memento:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/memento
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      # -Xmx350m: cap heap. Without this, JVM auto-sizes to ~25% of system RAM
+      #           but off-heap (threads, code cache, metaspace) adds ~200 MB on top,
+      #           easily hitting the 512 MB container limit and getting OOM-killed.
+      # -Xss256k: reduce thread stack from default 1 MB to 256 KB — saves ~100 MB
+      #           when Spring Boot creates its thread pool at startup.
+      JAVA_TOOL_OPTIONS: "-Xmx350m -Xss256k"
+    volumes:
+      - logs:/var/log/memento
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: '0.8'
+
+volumes:
+  postgres_data:   # Postgres data — persists independently of containers
+  logs:            # App log files — persists across app rebuilds

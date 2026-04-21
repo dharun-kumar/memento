@@ -1,0 +1,85 @@
+name: Build and Deploy
+
+# Triggers automatically on every push to main.
+#
+# What happens:
+#   1. Build Docker image on GitHub's servers (free CI runners).
+#   2. Push image to ghcr.io (GitHub's free built-in Docker registry).
+#   3. Sync docker-compose.yml to the VPS.
+#   4. SSH to VPS → pull new image → restart only the app container.
+#      The db container and postgres_data volume are never touched.
+#
+# VPS first-time setup: follow the "First-time VPS setup" section in README.md.
+# After that this workflow handles everything on every push to main.
+#
+# GitHub Secrets required (repo → Settings → Secrets → Actions):
+#   VPS_HOST     — VPS IP address
+#   VPS_USER     — SSH username (ubuntu, root, etc.)
+#   VPS_SSH_KEY  — private SSH key (cat ~/.ssh/id_rsa)
+
+on:
+  push:
+    branches: [main]
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # required to push to ghcr.io
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # GITHUB_TOKEN is auto-generated — no extra secret needed
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Builds using the multi-stage Dockerfile — Java + Gradle run inside Docker,
+      # so this runner needs no JDK installed
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:latest
+
+      # Keep the compose file on VPS in sync with the repo
+      - name: Sync docker-compose.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: docker-compose.yml
+          target: /opt/memento/
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/memento
+
+            # Fail loudly if .env is missing or APP_IMAGE not set
+            grep -q "^APP_IMAGE=" .env || { echo "ERROR: APP_IMAGE not set in /opt/memento/.env"; exit 1; }
+
+            # Pull only the app image — db image never changes between deploys
+            docker compose pull app
+
+            # Restart only the app — db container and data volume untouched
+            docker compose up -d app
+
+            # Free disk space from previous image layers
+            docker image prune -f
