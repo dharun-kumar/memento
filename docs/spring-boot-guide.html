@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Boot — A Beginner's Complete Guide</title>
+  <style>
+    :root {
+      --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --muted: #6b7280;
+      --accent: #16a34a; --accent-light: #dcfce7; --border: #e5e7eb;
+      --code-bg: #0f172a; --code-text: #e2e8f0;
+      --inline-bg: #f1f5f9; --inline-text: #0f766e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; background: var(--bg); color: var(--text); line-height: 1.8; font-size: 18px; }
+
+    /* ── Hero ── */
+    .hero { background: linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#16a34a 100%); color:#fff; padding:80px 24px 60px; text-align:center; }
+    .hero .kicker { font:13px/1 'Helvetica Neue',sans-serif; letter-spacing:3px; text-transform:uppercase; color:#86efac; margin-bottom:20px; }
+    .hero h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1.2; margin-bottom:20px; }
+    .hero .subtitle { font:1.1rem/1.6 'Helvetica Neue',sans-serif; color:#cbd5e1; max-width:640px; margin:0 auto 32px; }
+    .hero .meta { font:14px 'Helvetica Neue',sans-serif; color:#94a3b8; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+    .stack-pills { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-top:28px; }
+    .stack-pill { font:12px 'Helvetica Neue',sans-serif; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#e2e8f0; }
+
+    /* ── Layout ── */
+    .toc-wrapper { max-width:820px; margin:40px auto; padding:0 24px; }
+    .toc { background:#fff; border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:8px; padding:28px 32px; }
+    .toc h3 { font:13px/1 'Helvetica Neue',sans-serif; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+    .toc ol { padding-left:20px; font:15px/1.8 'Helvetica Neue',sans-serif; color:var(--muted); }
+    .toc ol li a { color:var(--accent); text-decoration:none; }
+    .toc ol li a:hover { text-decoration:underline; }
+    .article { max-width:820px; margin:0 auto; padding:0 24px 80px; }
+
+    /* ── Typography ── */
+    .article h2 { font-size:1.85rem; font-weight:700; margin:60px 0 16px; border-bottom:2px solid var(--accent-light); padding-bottom:10px; }
+    .article h3 { font-size:1.25rem; font-weight:700; margin:36px 0 12px; color:#1e3a5f; }
+    .article h4 { font:600 .95rem 'Helvetica Neue',sans-serif; margin:24px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+    .article p { margin-bottom:20px; color:#374151; }
+    code { font:0.83em/1 Menlo,Monaco,Consolas,monospace; background:var(--inline-bg); color:var(--inline-text); padding:2px 6px; border-radius:4px; }
+
+    /* ── Code blocks ── */
+    .cb { background:var(--code-bg); border-radius:10px; overflow:hidden; margin:24px 0 32px; box-shadow:0 4px 20px rgba(0,0,0,.15); }
+    .cb-hdr { background:#1e293b; padding:10px 16px; display:flex; align-items:center; gap:8px; font:12px 'Helvetica Neue',sans-serif; color:#94a3b8; }
+    .cb-hdr .d { width:10px;height:10px;border-radius:50%; }
+    .cb-hdr .dr{background:#ef4444;} .cb-hdr .dy{background:#f59e0b;} .cb-hdr .dg{background:#22c55e;}
+    .cb-hdr .fn { margin-left:8px; color:#cbd5e1; }
+    .cb pre { padding:20px 24px; overflow-x:auto; font:14px/1.7 Menlo,Monaco,Consolas,monospace; color:var(--code-text); }
+
+    /* ── Syntax ── */
+    .kw{color:#c084fc} .ann{color:#fb923c} .str{color:#86efac} .cm{color:#64748b;font-style:italic}
+    .cls{color:#60a5fa} .fn{color:#facc15} .num{color:#f472b6}
+    .tag{color:#38bdf8} .attr{color:#fb923c} .val{color:#86efac} .prop{color:#7dd3fc}
+
+    /* ── Callouts ── */
+    .note { border-radius:8px; padding:20px 24px; margin:28px 0; font:15px/1.6 'Helvetica Neue',sans-serif; }
+    .note.info { background:#eff6ff; border-left:4px solid #3b82f6; color:#1e3a5f; }
+    .note.tip  { background:#f0fdf4; border-left:4px solid #16a34a; color:#14532d; }
+    .note.warn { background:#fffbeb; border-left:4px solid #f59e0b; color:#78350f; }
+    .note.danger { background:#fef2f2; border-left:4px solid #ef4444; color:#7f1d1d; }
+    .note strong { display:block; margin-bottom:6px; font-size:13px; letter-spacing:1px; text-transform:uppercase; }
+
+    /* ── Tables ── */
+    .t { width:100%; border-collapse:collapse; margin:24px 0 32px; font:15px 'Helvetica Neue',sans-serif; }
+    .t th { background:#0f172a; color:#fff; padding:12px 16px; text-align:left; }
+    .t td { padding:12px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
+    .t tr:nth-child(even){background:#f8fafc;} .t tr:hover{background:#f0fdf4;}
+
+    /* ── Misc ── */
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 24px; }
+    .tag-p { font:13px 'Helvetica Neue',sans-serif; padding:4px 12px; border-radius:20px; background:#f0fdf4; border:1px solid #bbf7d0; color:var(--accent); }
+    .badge { display:inline-flex; align-items:center; gap:8px; background:#0f172a; color:#86efac; font:13px 'Helvetica Neue',sans-serif; padding:6px 14px; border-radius:20px; margin-bottom:12px; }
+    .badge::before{content:"📌";}
+    .fix-table { width:100%; border-collapse:collapse; margin:24px 0 32px; font:13px/1.5 Menlo,Monaco,Consolas,monospace; }
+    .fix-table th { background:#1e293b; color:#94a3b8; padding:10px 14px; text-align:left; font:12px 'Helvetica Neue',sans-serif; letter-spacing:1px; text-transform:uppercase; }
+    .fix-table td { padding:10px 14px; border-bottom:1px solid #1e293b; background:#0f172a; color:#e2e8f0; vertical-align:top; }
+    .fix-table td:first-child{color:#f472b6;} .fix-table td:nth-child(2){color:#94a3b8;font-style:italic;} .fix-table td:last-child{color:#86efac;}
+    hr.div { border:none; border-top:1px solid var(--border); margin:48px 0; }
+    .footer { background:#0f172a; color:#94a3b8; text-align:center; padding:48px 24px; font:14px 'Helvetica Neue',sans-serif; }
+    .footer strong{color:#e2e8f0;}
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0 32px; }
+    @media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+    .side { border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .side-hdr { background:#1e293b; color:#cbd5e1; font:600 13px 'Helvetica Neue',sans-serif; padding:8px 14px; }
+    .side pre { background:var(--code-bg); padding:16px; font:13px/1.6 Menlo,Monaco,Consolas,monospace; color:var(--code-text); overflow-x:auto; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<div class="hero">
+  <div class="kicker">Backend Development · Real-World Spring Boot</div>
+  <h1>Spring Boot — A Beginner's Complete Guide</h1>
+  <p class="subtitle">Every concept explained through <strong>Memento</strong> — a production bookmark manager running on Spring Boot 4.x, Java 25, and deployed to a live VPS via Docker &amp; GitHub Actions.</p>
+  <div class="meta"><span>☕ Java 25</span><span>🌱 Spring Boot 4.x</span><span>🔐 Spring Security 7.x</span><span>📖 ~25 min read</span></div>
+  <div class="stack-pills">
+    <span class="stack-pill">Gradle Kotlin DSL</span><span class="stack-pill">PostgreSQL + Flyway</span>
+    <span class="stack-pill">JJWT 0.12.6</span><span class="stack-pill">Caffeine Cache</span>
+    <span class="stack-pill">Bucket4j</span><span class="stack-pill">Thymeleaf</span>
+    <span class="stack-pill">springdoc-openapi</span><span class="stack-pill">Docker + GitHub Actions</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TOC ═══════════════════════════ -->
+<div class="toc-wrapper">
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#build">Build Tools — Gradle Kotlin DSL</a></li>
+      <li><a href="#jdbc">JDBC — Talking to Databases</a></li>
+      <li><a href="#ioc">Spring Core — IoC &amp; Dependency Injection</a></li>
+      <li><a href="#di-types">Three Ways to Do Dependency Injection</a></li>
+      <li><a href="#springboot">Spring Boot — The Simplified Framework</a></li>
+      <li><a href="#container">IoC Container &amp; ApplicationContext</a></li>
+      <li><a href="#web">Spring Boot Web — Building REST APIs</a></li>
+      <li><a href="#jpa">JPA &amp; Hibernate — Persisting Data</a></li>
+      <li><a href="#flyway">Flyway — Database Migrations</a></li>
+      <li><a href="#security">Spring Security — Dual Auth (JWT + Session)</a></li>
+      <li><a href="#jwtfilter">Custom JWT Filter</a></li>
+      <li><a href="#userdetails">UserDetails &amp; UserDetailsService</a></li>
+      <li><a href="#jwt">JWT with JJWT 0.12.6</a></li>
+      <li><a href="#cache">Caching with Spring Cache + Caffeine</a></li>
+      <li><a href="#validation">Bean Validation &amp; Global Exception Handling</a></li>
+      <li><a href="#ratelimit">Rate Limiting with Bucket4j</a></li>
+      <li><a href="#thymeleaf">Thymeleaf — Server-Side Views</a></li>
+      <li><a href="#actuator">Actuator, OpenAPI &amp; Production Config</a></li>
+      <li><a href="#deploy">Deployment — Docker + GitHub Actions</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ ARTICLE ═══════════════════════════ -->
+<div class="article">
+
+<!-- ──────────────── 1. BUILD TOOLS ──────────────── -->
+<h2 id="build">1. Build Tools — Gradle Kotlin DSL</h2>
+
+<p>Before a single line of Spring Boot can run, you need a <strong>build tool</strong>. It does two jobs: manage your dependencies (the libraries your project needs) and compile + package your code into a runnable JAR. The two biggest options in the Java ecosystem are Maven (XML config) and Gradle (DSL config). Memento uses <strong>Gradle with the Kotlin DSL</strong> — more concise, type-safe, and the natural choice for modern Spring Boot projects.</p>
+
+<table class="t">
+  <thead><tr><th>Feature</th><th>Maven (pom.xml)</th><th>Gradle Kotlin DSL (build.gradle.kts)</th></tr></thead>
+  <tbody>
+    <tr><td>Config format</td><td>XML — verbose but universal</td><td>Kotlin DSL — concise, type-safe, IDE-friendly</td></tr>
+    <tr><td>Build speed</td><td>Slower (no incremental builds by default)</td><td>Faster — incremental builds, build cache</td></tr>
+    <tr><td>Dependency syntax</td><td><code>&lt;dependency&gt;...&lt;/dependency&gt;</code></td><td><code>implementation("group:artifact:version")</code></td></tr>
+    <tr><td>Best for</td><td>Traditional enterprise, existing projects</td><td>New projects, multi-module, Android</td></tr>
+  </tbody>
+</table>
+
+<p>Here's the complete <code>build.gradle.kts</code> for Memento. Notice the <code>runtimeOnly</code> vs <code>implementation</code> distinction — it keeps unnecessary code off the compile classpath:</p>
+
+<div class="badge">Memento — build.gradle.kts</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">build.gradle.kts</span></div>
+  <pre><span class="fn">plugins</span> {
+    java
+    <span class="fn">id</span>(<span class="str">"org.springframework.boot"</span>) version <span class="str">"4.0.5"</span>
+    <span class="fn">id</span>(<span class="str">"io.spring.dependency-management"</span>) version <span class="str">"1.1.7"</span>
+}
+
+group = <span class="str">"com"</span>
+version = <span class="str">"0.0.1-SNAPSHOT"</span>
+java { toolchain { languageVersion = <span class="cls">JavaLanguageVersion</span>.<span class="fn">of</span>(<span class="num">25</span>) } }
+
+dependencies {
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-webmvc"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-thymeleaf"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.webjars:bootstrap:5.3.3"</span>)           <span class="cm">// Bootstrap inside JAR, no CDN</span>
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-data-jpa"</span>)
+    <span class="fn">runtimeOnly</span>(<span class="str">"org.postgresql:postgresql"</span>)
+    <span class="fn">implementation</span>(<span class="str">"com.bucket4j:bucket4j-core:8.10.1"</span>)    <span class="cm">// rate limiting</span>
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-security"</span>)
+    <span class="fn">implementation</span>(<span class="str">"io.jsonwebtoken:jjwt-api:0.12.6"</span>)
+    <span class="fn">runtimeOnly</span>(<span class="str">"io.jsonwebtoken:jjwt-impl:0.12.6"</span>)
+    <span class="fn">runtimeOnly</span>(<span class="str">"io.jsonwebtoken:jjwt-jackson:0.12.6"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-validation"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.flywaydb:flyway-core"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.flywaydb:flyway-database-postgresql"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-cache"</span>)
+    <span class="fn">implementation</span>(<span class="str">"com.github.ben-manes.caffeine:caffeine"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.springframework.boot:spring-boot-starter-actuator"</span>)
+    <span class="fn">implementation</span>(<span class="str">"org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8"</span>)
+}</pre>
+</div>
+
+<div class="note tip">
+  <strong>💡 runtimeOnly vs implementation</strong>
+  <code>implementation</code> — on the compile + runtime classpath (your code uses it directly). <code>runtimeOnly</code> — only needed at runtime, not compile time. The PostgreSQL JDBC driver and JJWT implementation jars are never referenced in source code — they're loaded by reflection at runtime, so <code>runtimeOnly</code> is correct and keeps your compile classpath lean.
+</div>
+
+<!-- ──────────────── 2. JDBC ──────────────── -->
+<h2 id="jdbc">2. JDBC — Talking to Databases</h2>
+
+<p><strong>JDBC</strong> (Java Database Connectivity) is the low-level standard API that connects Java code to relational databases. Every higher-level abstraction — JPA, Hibernate, Spring Data — ultimately calls JDBC under the hood. Understanding JDBC helps you understand what the framework is doing on your behalf.</p>
+
+<p>The four layers in JDBC's architecture: your <strong>application code</strong> issues commands using <strong>JDBC API interfaces</strong> (<code>Connection</code>, <code>PreparedStatement</code>, <code>ResultSet</code>). The <strong>DriverManager</strong> selects the right <strong>JDBC Driver</strong> (e.g. the PostgreSQL driver from the <code>runtimeOnly</code> dependency above) based on your connection URL, and that driver handles the actual network communication with the database server.</p>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Raw JDBC — what Spring does for you under the hood</span></div>
+  <pre><span class="cls">Connection</span> conn = <span class="cls">DriverManager</span>.<span class="fn">getConnection</span>(
+    <span class="str">"jdbc:postgresql://localhost:5432/memento"</span>, <span class="str">"memento"</span>, <span class="str">"memento123"</span>
+);
+
+<span class="cm">// PreparedStatement prevents SQL injection — always use it over Statement</span>
+<span class="cls">PreparedStatement</span> stmt = conn.<span class="fn">prepareStatement</span>(
+    <span class="str">"SELECT * FROM bookmarks WHERE user_id = ?"</span>
+);
+stmt.<span class="fn">setLong</span>(<span class="num">1</span>, userId);
+
+<span class="cls">ResultSet</span> rs = stmt.<span class="fn">executeQuery</span>();
+<span class="kw">while</span> (rs.<span class="fn">next</span>()) {
+    System.out.<span class="fn">println</span>(rs.<span class="fn">getString</span>(<span class="str">"title"</span>) + <span class="str">" → "</span> + rs.<span class="fn">getString</span>(<span class="str">"url"</span>));
+}
+conn.<span class="fn">close</span>(); <span class="cm">// must not forget — leaks connections otherwise</span></pre>
+</div>
+
+<p>This is a lot of boilerplate — connection management, exception handling, resource cleanup. You'd also need a connection pool to avoid opening a new TCP connection per request. Spring Data JPA eliminates all of this. But knowing raw JDBC makes you appreciate why HikariCP (Spring Boot's default pool) matters — we'll revisit that in the production config section.</p>
+
+<!-- ──────────────── 3. IOC & DI ──────────────── -->
+<h2 id="ioc">3. Spring Core — IoC &amp; Dependency Injection</h2>
+
+<p>Spring's entire philosophy rests on two ideas: <strong>Inversion of Control (IoC)</strong> and <strong>Dependency Injection (DI)</strong>. Get these right and the rest of Spring becomes natural.</p>
+
+<h3>The problem Spring solves</h3>
+<p>A real app has layers: <code>BookMarkController</code> needs <code>BookMarkService</code>, which needs <code>BookMarkRepository</code>, which needs a database connection. Without a framework:</p>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Manual wiring — painful at scale</span></div>
+  <pre><span class="kw">public class</span> <span class="cls">BookMarkController</span> {
+    <span class="kw">private</span> <span class="cls">BookMarkService</span> service = <span class="kw">new</span> <span class="cls">BookMarkService</span>(); <span class="cm">// tight coupling</span>
+}
+<span class="kw">public class</span> <span class="cls">BookMarkService</span> {
+    <span class="kw">private</span> <span class="cls">BookMarkRepository</span> repo = <span class="kw">new</span> <span class="cls">BookMarkRepository</span>(); <span class="cm">// can't test in isolation</span>
+}</pre>
+</div>
+
+<p>Every <code>new</code> keyword tightly couples the classes. You can't swap <code>BookMarkRepository</code> for a mock in tests. And managing when to create or destroy objects across a large app becomes unmanageable.</p>
+
+<p><strong>IoC</strong> (Inversion of Control) is the principle: give up control of object creation to the framework. You say "here is what I need"; Spring figures out how to build and wire it. IoC is just a principle — the mechanism that implements it in Java is <strong>Dependency Injection</strong>.</p>
+
+<p><strong>DI</strong> means an object receives its dependencies from outside rather than creating them itself. Spring's <strong>IoC container</strong> creates all your objects (called <strong>Beans</strong>), stores them, and injects them wherever they're needed.</p>
+
+<div class="note info">
+  <strong>📘 Key Terms</strong>
+  <strong>Bean</strong> — any object managed by Spring's IoC container.<br>
+  <strong>IoC Container</strong> — the part of Spring that creates, stores, and wires beans.<br>
+  <strong>DI</strong> — the mechanism: Spring injects a bean into another bean's constructor, setter, or field.
+</div>
+
+<!-- ──────────────── 4. DI TYPES ──────────────── -->
+<h2 id="di-types">4. Three Ways to Do Dependency Injection</h2>
+
+<p>Spring supports three DI styles. Memento uses constructor injection throughout — here's why that's the right call, and what the alternatives look like.</p>
+
+<h3>Field Injection — convenient but discouraged</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Field Injection</span></div>
+  <pre><span class="ann">@RestController</span>
+<span class="kw">public class</span> <span class="cls">BookMarkController</span> {
+
+    <span class="ann">@Autowired</span>
+    <span class="kw">private</span> <span class="cls">BookMarkService</span> service; <span class="cm">// Spring injects directly into the field</span>
+
+    <span class="ann">@GetMapping</span>(<span class="str">"/api/bookmarks"</span>)
+    <span class="kw">public</span> <span class="cls">List</span>&lt;<span class="cls">BookMark</span>&gt; <span class="fn">getAll</span>() { <span class="kw">return</span> service.<span class="fn">getAllBookmarks</span>(); }
+}</pre>
+</div>
+<div class="note warn">
+  <strong>⚠️ Why field injection is discouraged</strong>
+  Hidden dependencies — you can't see what a class needs without reading all its fields. Can't be <code>final</code>. Impossible to test without Spring (no way to pass a mock without reflection hacks). Spring itself recommends against it for production code.
+</div>
+
+<h3>Setter Injection — for optional dependencies</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Setter Injection</span></div>
+  <pre><span class="ann">@RestController</span>
+<span class="kw">public class</span> <span class="cls">BookMarkController</span> {
+
+    <span class="kw">private</span> <span class="cls">BookMarkService</span> service;
+
+    <span class="ann">@Autowired</span>
+    <span class="kw">public void</span> <span class="fn">setService</span>(<span class="cls">BookMarkService</span> service) {
+        <span class="kw">this</span>.service = service;
+    }
+}</pre>
+</div>
+
+<h3>Constructor Injection ✅ — the right choice</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Constructor Injection — used throughout Memento</span></div>
+  <pre><span class="ann">@RestController</span>
+<span class="kw">public class</span> <span class="cls">BookMarkController</span> {
+
+    <span class="kw">private final</span> <span class="cls">BookMarkService</span> service; <span class="cm">// final — immutable once wired</span>
+
+    <span class="cm">// Single constructor: @Autowired not needed in Spring Boot 2+</span>
+    <span class="kw">public</span> <span class="fn">BookMarkController</span>(<span class="cls">BookMarkService</span> service) {
+        <span class="kw">this</span>.service = service;
+    }
+}</pre>
+</div>
+<div class="note tip">
+  <strong>✅ Why constructor injection wins</strong>
+  Dependencies are explicit (visible in the constructor signature). Field can be <code>final</code>. Easy unit testing — just pass a mock directly. Spring detects circular dependencies at startup instead of at runtime. Memento uses this pattern in every class.
+</div>
+
+<h3>Resolving ambiguity — @Primary and @Qualifier</h3>
+<p>If two classes implement the same interface and both are <code>@Component</code>, Spring throws an error on startup — it doesn't know which to inject. Two fixes:</p>
+
+<div class="two-col">
+  <div class="side"><div class="side-hdr">Fix 1 — @Primary</div>
+  <pre><span class="ann">@Component</span>
+<span class="ann">@Primary</span> <span class="cm">// preferred when both exist</span>
+<span class="kw">public class</span> <span class="cls">LaptopService</span>
+    <span class="kw">implements</span> <span class="cls">ComputerService</span> {}
+
+<span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="cls">DesktopService</span>
+    <span class="kw">implements</span> <span class="cls">ComputerService</span> {}</pre></div>
+  <div class="side"><div class="side-hdr">Fix 2 — @Qualifier</div>
+  <pre><span class="kw">public</span> <span class="fn">MyController</span>(
+  <span class="ann">@Qualifier</span>(<span class="str">"desktopService"</span>)
+  <span class="cls">ComputerService</span> computerService
+) {
+  <span class="kw">this</span>.computerService = computerService;
+}</pre></div>
+</div>
+
+<!-- ──────────────── 5. SPRING BOOT ──────────────── -->
+<h2 id="springboot">5. Spring Boot — The Simplified Framework</h2>
+
+<p>Plain Spring requires a mountain of configuration — XML, manual bean wiring, application server setup. <strong>Spring Boot</strong> is an opinionated layer on top that gives you sensible defaults, auto-configuration, and an embedded server, letting you go from zero to running app in minutes.</p>
+
+<h3>JAR vs WAR</h3>
+<table class="t">
+  <thead><tr><th></th><th>WAR (traditional)</th><th>JAR (Spring Boot)</th></tr></thead>
+  <tbody>
+    <tr><td>Server</td><td>External Tomcat — install separately</td><td>Embedded Tomcat — ships inside the JAR</td></tr>
+    <tr><td>Run</td><td>Copy WAR into <code>webapps/</code>, start Tomcat</td><td><code>java -jar memento.jar</code></td></tr>
+    <tr><td>Config overhead</td><td>High — XML descriptors, server config</td><td>Minimal — <code>application.properties</code></td></tr>
+    <tr><td>Container</td><td>Runs in server's JVM</td><td>Runs in its own JVM — ideal for Docker</td></tr>
+  </tbody>
+</table>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">MementoApplication.java</span></div>
+  <pre><span class="kw">package</span> com.memento;
+
+<span class="kw">import</span> org.springframework.boot.SpringApplication;
+<span class="kw">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+<span class="kw">import</span> org.springframework.cache.annotation.EnableCaching;
+
+<span class="ann">@SpringBootApplication</span>  <span class="cm">// = @Configuration + @EnableAutoConfiguration + @ComponentScan</span>
+<span class="ann">@EnableCaching</span>          <span class="cm">// activates Spring's caching abstraction (Section 14)</span>
+<span class="kw">public class</span> <span class="cls">MementoApplication</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">SpringApplication</span>.<span class="fn">run</span>(<span class="cls">MementoApplication</span>.class, args);
+        <span class="cm">// Starts IoC container + embedded Tomcat</span>
+        <span class="cm">// Flyway migrations run, beans are wired, server starts on port 8080</span>
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 6. IOC CONTAINER ──────────────── -->
+<h2 id="container">6. IoC Container &amp; ApplicationContext</h2>
+
+<p>When <code>SpringApplication.run()</code> is called, Spring scans your project for annotated classes and creates a bean for each one. The stereotype annotations tell Spring what role each class plays — they're all specialisations of <code>@Component</code>:</p>
+
+<div class="tags">
+  <span class="tag-p">@Component — generic managed bean</span>
+  <span class="tag-p">@Service — business logic (BookMarkService)</span>
+  <span class="tag-p">@Repository — data access (BookMarkRepository)</span>
+  <span class="tag-p">@Controller — MVC views (AuthController)</span>
+  <span class="tag-p">@RestController — REST API (BookMarkController)</span>
+  <span class="tag-p">@Configuration — config beans (SecurityConfig)</span>
+</div>
+
+<p>The <code>@Repository</code> annotation does one extra thing beyond <code>@Component</code>: it makes Spring translate database exceptions (like <code>SQLException</code>) into Spring's own <code>DataAccessException</code> hierarchy. This is useful — your service layer doesn't need to know which database you're using.</p>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Fetching beans programmatically (debugging tool)</span></div>
+  <pre><span class="ann">@SpringBootApplication</span>
+<span class="ann">@EnableCaching</span>
+<span class="kw">public class</span> <span class="cls">MementoApplication</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cm">// run() returns the ApplicationContext — the live IoC container</span>
+        <span class="cls">ApplicationContext</span> ctx = <span class="cls">SpringApplication</span>.<span class="fn">run</span>(<span class="cls">MementoApplication</span>.class, args);
+
+        <span class="cm">// Fetch by type — no cast needed, Spring knows the exact type</span>
+        <span class="cls">BookMarkService</span> svc = ctx.<span class="fn">getBean</span>(<span class="cls">BookMarkService</span>.class);
+    }
+}</pre>
+</div>
+<p>In practice you'll never call <code>getBean()</code> in real code — Spring handles all wiring via constructor injection. This is purely a debugging/exploration tool.</p>
+
+<!-- ──────────────── 7. SPRING WEB ──────────────── -->
+<h2 id="web">7. Spring Boot Web — Building REST APIs</h2>
+
+<p>Spring MVC sits at the core of Spring Boot's web layer. Every incoming HTTP request passes through a <strong>DispatcherServlet</strong> (Spring's front controller), which routes it to the right method based on URL + HTTP verb mappings.</p>
+
+<table class="t">
+  <thead><tr><th>Annotation</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>@RestController</code></td><td>= <code>@Controller</code> + <code>@ResponseBody</code>. All methods return data (JSON by default), not view names.</td></tr>
+    <tr><td><code>@RequestMapping</code></td><td>Sets base URL path for all methods in the class.</td></tr>
+    <tr><td><code>@GetMapping</code> / <code>@PostMapping</code> / <code>@PutMapping</code> / <code>@DeleteMapping</code></td><td>Map specific HTTP verbs to methods.</td></tr>
+    <tr><td><code>@PathVariable</code></td><td>Extracts a segment from the URL: <code>/bookmarks/{title}</code>.</td></tr>
+    <tr><td><code>@RequestBody</code></td><td>Deserialises the JSON request body into a Java object.</td></tr>
+    <tr><td><code>@Valid</code></td><td>Triggers Bean Validation on the incoming object before the method runs.</td></tr>
+  </tbody>
+</table>
+
+<div class="badge">Memento — BookMarkController.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">controller/BookMarkController.java</span></div>
+  <pre><span class="ann">@RestController</span>
+<span class="ann">@RequestMapping</span>(<span class="str">"/api/bookmarks"</span>)
+<span class="kw">public class</span> <span class="cls">BookMarkController</span> {
+
+    <span class="kw">private final</span> <span class="cls">BookMarkService</span> service;
+
+    <span class="kw">public</span> <span class="fn">BookMarkController</span>(<span class="cls">BookMarkService</span> service) {
+        <span class="kw">this</span>.service = service;
+    }
+
+    <span class="cm">// GET /api/bookmarks — list all bookmarks for the logged-in user</span>
+    <span class="ann">@GetMapping</span>
+    <span class="kw">public</span> <span class="cls">ResponseEntity</span>&lt;<span class="cls">List</span>&lt;<span class="cls">BookMark</span>&gt;&gt; <span class="fn">getAllBookmarks</span>() {
+        <span class="kw">return</span> <span class="cls">ResponseEntity</span>.<span class="fn">ok</span>(service.<span class="fn">getAllBookmarks</span>());
+    }
+
+    <span class="cm">// POST /api/bookmarks — add a new bookmark (@Valid triggers Bean Validation)</span>
+    <span class="ann">@PostMapping</span>
+    <span class="kw">public</span> <span class="cls">ResponseEntity</span>&lt;<span class="cls">BookMark</span>&gt; <span class="fn">addBookmark</span>(<span class="ann">@Valid</span> <span class="ann">@RequestBody</span> <span class="cls">BookMark</span> bookMark) {
+        <span class="kw">return</span> <span class="cls">ResponseEntity</span>.<span class="fn">status</span>(<span class="cls">HttpStatus</span>.CREATED)
+                            .<span class="fn">body</span>(service.<span class="fn">addBookmark</span>(bookMark));
+    }
+
+    <span class="cm">// DELETE /api/bookmarks/{title}</span>
+    <span class="ann">@DeleteMapping</span>(<span class="str">"/{title}"</span>)
+    <span class="kw">public</span> <span class="cls">ResponseEntity</span>&lt;<span class="cls">Void</span>&gt; <span class="fn">deleteBookmark</span>(<span class="ann">@PathVariable</span> <span class="cls">String</span> title) {
+        service.<span class="fn">deleteBookmark</span>(title);
+        <span class="kw">return</span> <span class="cls">ResponseEntity</span>.<span class="fn">noContent</span>().<span class="fn">build</span>();
+    }
+
+    <span class="cm">// PUT /api/bookmarks/{title} — update a bookmark</span>
+    <span class="ann">@PutMapping</span>(<span class="str">"/{title}"</span>)
+    <span class="kw">public</span> <span class="cls">ResponseEntity</span>&lt;<span class="cls">BookMark</span>&gt; <span class="fn">updateBookmark</span>(
+            <span class="ann">@PathVariable</span> <span class="cls">String</span> title,
+            <span class="ann">@Valid</span> <span class="ann">@RequestBody</span> <span class="cls">BookMark</span> bookMark) {
+        <span class="kw">return</span> <span class="cls">ResponseEntity</span>.<span class="fn">ok</span>(service.<span class="fn">updateBookmark</span>(title, bookMark));
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 8. JPA ──────────────── -->
+<h2 id="jpa">8. JPA &amp; Hibernate — Persisting Data</h2>
+
+<p><strong>JPA</strong> (Java Persistence API) is a standard that maps Java classes to database tables so you work with objects rather than SQL. <strong>Hibernate</strong> is the most popular JPA implementation — it generates the SQL. <strong>Spring Data JPA</strong> wraps Hibernate and auto-generates repository code so you barely write any SQL at all.</p>
+
+<h3>The Bookmark entity</h3>
+<p>Memento's <code>BookMark</code> entity has a few interesting design decisions: <code>title</code> is the primary key (a natural key instead of a generated ID), <code>userId</code> is hidden from API responses with <code>@JsonIgnore</code>, and Bean Validation annotations guard fields at the HTTP layer.</p>
+
+<div class="badge">Memento — model/BookMark.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">model/BookMark.java</span></div>
+  <pre><span class="kw">import</span> jakarta.persistence.*;
+<span class="kw">import</span> jakarta.validation.constraints.*;
+<span class="kw">import</span> com.fasterxml.jackson.annotation.JsonIgnore;
+
+<span class="ann">@Entity</span>  <span class="cm">// maps this class to the "book_mark" table (Flyway creates it)</span>
+<span class="kw">public class</span> <span class="cls">BookMark</span> {
+
+    <span class="ann">@Id</span>  <span class="cm">// title is the natural primary key — no auto-increment needed</span>
+    <span class="ann">@NotBlank</span>(message = <span class="str">"Title cannot be blank"</span>)
+    <span class="ann">@Size</span>(max = <span class="num">255</span>, message = <span class="str">"Title must be 255 chars or fewer"</span>)
+    <span class="kw">private</span> <span class="cls">String</span> title;
+
+    <span class="ann">@NotBlank</span>(message = <span class="str">"URL cannot be blank"</span>)
+    <span class="ann">@Size</span>(max = <span class="num">2048</span>)
+    <span class="kw">private</span> <span class="cls">String</span> url;
+
+    <span class="ann">@JsonIgnore</span>  <span class="cm">// never exposed in API responses — internal ownership field</span>
+    <span class="kw">private</span> <span class="cls">Long</span> userId;
+
+    <span class="cm">// getters and setters...</span>
+}</pre>
+</div>
+
+<div class="note info">
+  <strong>📘 Natural key vs generated ID</strong>
+  Using <code>title</code> as <code>@Id</code> means every bookmark title must be unique per user. The tradeoff: simpler API URLs (<code>/api/bookmarks/My+Article</code>) but updates that change the title require delete + re-insert. For Memento's use case — an AI agent managing bookmarks by name — this is a deliberate and sensible choice.
+</div>
+
+<h3>The User entity</h3>
+<div class="badge">Memento — model/User.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">model/User.java</span></div>
+  <pre><span class="ann">@Entity</span>
+<span class="ann">@Table</span>(name = <span class="str">"users"</span>)
+<span class="kw">public class</span> <span class="cls">User</span> {
+
+    <span class="ann">@Id</span>
+    <span class="ann">@GeneratedValue</span>(strategy = <span class="cls">GenerationType</span>.IDENTITY) <span class="cm">// maps to BIGSERIAL in Postgres</span>
+    <span class="kw">private</span> <span class="cls">Long</span> id;
+
+    <span class="ann">@Column</span>(unique = <span class="kw">true</span>, nullable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="cls">String</span> username;
+
+    <span class="kw">private</span> <span class="cls">String</span> password; <span class="cm">// BCrypt-hashed, never plaintext</span>
+
+    <span class="ann">@Enumerated</span>(<span class="cls">EnumType</span>.STRING) <span class="cm">// stores "ADMIN" not "0" — safe to reorder enum values</span>
+    <span class="kw">private</span> <span class="cls">Role</span> role;
+}</pre>
+</div>
+
+<h3>The Repository</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">repository/BookMarkRepository.java</span></div>
+  <pre><span class="ann">@Repository</span>
+<span class="kw">public interface</span> <span class="cls">BookMarkRepository</span> <span class="kw">extends</span> <span class="cls">JpaRepository</span>&lt;<span class="cls">BookMark</span>, <span class="cls">String</span>&gt; {
+    <span class="cm">// Spring Data generates SQL from the method name — no @Query needed</span>
+    <span class="cls">List</span>&lt;<span class="cls">BookMark</span>&gt; <span class="fn">findByUserId</span>(<span class="cls">Long</span> userId);
+    <span class="kw">boolean</span> <span class="fn">existsByTitleAndUserId</span>(<span class="cls">String</span> title, <span class="cls">Long</span> userId);
+    <span class="kw">void</span> <span class="fn">deleteByTitleAndUserId</span>(<span class="cls">String</span> title, <span class="cls">Long</span> userId);
+}</pre>
+</div>
+
+<!-- ──────────────── 9. FLYWAY ──────────────── -->
+<h2 id="flyway">9. Flyway — Database Migrations</h2>
+
+<p>A common Spring Boot gotcha: new developers reach for <code>spring.jpa.hibernate.ddl-auto=create</code> which auto-generates tables. This is fine for learning, but dangerous in production — it can drop and recreate your tables on startup, destroying data. <strong>Flyway</strong> is the proper answer: versioned SQL scripts that run exactly once, in order, and are tracked in a <code>flyway_schema_history</code> table.</p>
+
+<p>Memento sets <code>spring.jpa.hibernate.ddl-auto=none</code> — Hibernate never touches the schema. Flyway owns it entirely.</p>
+
+<div class="badge">Memento — V1__init.sql</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">src/main/resources/db/migration/V1__init.sql</span></div>
+  <pre><span class="cm">-- users table with BIGSERIAL PK and BCrypt password</span>
+<span class="kw">CREATE TABLE</span> users (
+    id       BIGSERIAL PRIMARY KEY,
+    username VARCHAR(<span class="num">255</span>) NOT NULL UNIQUE,
+    password VARCHAR(<span class="num">255</span>) NOT NULL,
+    role     VARCHAR(<span class="num">50</span>)  NOT NULL CHECK (role IN (<span class="str">'USER'</span>, <span class="str">'ADMIN'</span>))
+);
+
+<span class="cm">-- bookmarks table: composite PK on (title, user_id)</span>
+<span class="cm">-- CASCADE DELETE: removing a user removes all their bookmarks</span>
+<span class="kw">CREATE TABLE</span> book_mark (
+    title   VARCHAR(<span class="num">255</span>) NOT NULL,
+    url     VARCHAR(<span class="num">2048</span>) NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (title, user_id)
+);</pre>
+</div>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">src/main/resources/db/migration/V2__seed_admin.sql</span></div>
+  <pre><span class="cm">-- ON CONFLICT DO NOTHING makes this idempotent —</span>
+<span class="cm">-- safe to run multiple times without error</span>
+<span class="kw">INSERT INTO</span> users (username, password, role)
+<span class="kw">VALUES</span> (
+    <span class="str">'admin'</span>,
+    <span class="str">'$2a$12$...'</span>, <span class="cm">-- BCrypt hash of the initial admin password</span>
+    <span class="str">'ADMIN'</span>
+)
+<span class="kw">ON CONFLICT</span> (username) <span class="kw">DO NOTHING</span>;</pre>
+</div>
+
+<div class="note danger">
+  <strong>🐛 Spring Boot 4.x gotcha — Flyway silent skip</strong>
+  Adding <code>flyway-database-postgresql</code> to your dependencies causes <code>FlywayAutoConfiguration</code> to silently do nothing. Fix: set <code>spring.flyway.enabled=false</code> and create an explicit <code>@Bean</code> instead:
+</div>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">config/FlywayConfig.java — explicit bean bypasses broken auto-config</span></div>
+  <pre><span class="ann">@Configuration</span>
+<span class="kw">public class</span> <span class="cls">FlywayConfig</span> {
+
+    <span class="ann">@Bean</span>(initMethod = <span class="str">"migrate"</span>)  <span class="cm">// runs migrate() on startup</span>
+    <span class="kw">public</span> <span class="cls">Flyway</span> <span class="fn">flyway</span>(<span class="cls">DataSource</span> dataSource) {
+        <span class="kw">return</span> <span class="cls">Flyway</span>.<span class="fn">configure</span>()
+            .<span class="fn">dataSource</span>(dataSource)
+            .<span class="fn">locations</span>(<span class="str">"classpath:db/migration"</span>)
+            .<span class="fn">load</span>();
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 10. SECURITY ──────────────── -->
+<h2 id="security">10. Spring Security — Dual Auth (JWT + Session)</h2>
+
+<p>Memento needs two auth mechanisms on the same app: a <strong>browser user</strong> who logs in with a form (session-based), and an <strong>AI agent</strong> that uses a JWT token (stateless). Spring Security supports this cleanly through multiple <code>SecurityFilterChain</code> beans ordered with <code>@Order</code>.</p>
+
+<p>Every HTTP request passes through Spring's filter chain before reaching your controllers. Spring evaluates chains in order and uses the first one whose matcher matches the request path.</p>
+
+<div class="badge">Memento — config/SecurityConfig.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">config/SecurityConfig.java</span></div>
+  <pre><span class="ann">@Configuration</span>
+<span class="ann">@EnableWebSecurity</span>
+<span class="kw">public class</span> <span class="cls">SecurityConfig</span> {
+
+    <span class="kw">private final</span> <span class="cls">JwtAuthFilter</span> jwtAuthFilter;
+    <span class="kw">private final</span> <span class="cls">CustomUserDetailsService</span> userDetailsService;
+
+    <span class="kw">public</span> <span class="fn">SecurityConfig</span>(<span class="cls">JwtAuthFilter</span> jwtAuthFilter,
+                          <span class="cls">CustomUserDetailsService</span> userDetailsService) {
+        <span class="kw">this</span>.jwtAuthFilter = jwtAuthFilter;
+        <span class="kw">this</span>.userDetailsService = userDetailsService;
+    }
+
+    <span class="cm">// ── Chain 1: JWT for /api/** ──────────────────────────────</span>
+    <span class="ann">@Bean</span>
+    <span class="ann">@Order</span>(<span class="num">1</span>)
+    <span class="kw">public</span> <span class="cls">SecurityFilterChain</span> <span class="fn">apiFilterChain</span>(<span class="cls">HttpSecurity</span> http) <span class="kw">throws</span> <span class="cls">Exception</span> {
+        <span class="kw">return</span> http
+            .<span class="fn">securityMatcher</span>(<span class="str">"/api/**"</span>)         <span class="cm">// only intercepts /api/** paths</span>
+            .<span class="fn">csrf</span>(c -> c.<span class="fn">disable</span>())              <span class="cm">// no CSRF for stateless REST</span>
+            .<span class="fn">authorizeHttpRequests</span>(a -> a
+                .<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>())
+            .<span class="fn">sessionManagement</span>(s -> s
+                .<span class="fn">sessionCreationPolicy</span>(<span class="cls">SessionCreationPolicy</span>.NEVER)) <span class="cm">// never create sessions</span>
+            .<span class="fn">addFilterBefore</span>(jwtAuthFilter, <span class="cls">UsernamePasswordAuthenticationFilter</span>.class)
+            .<span class="fn">build</span>();
+    }
+
+    <span class="cm">// ── Chain 2: Form login for browser ──────────────────────</span>
+    <span class="ann">@Bean</span>
+    <span class="ann">@Order</span>(<span class="num">2</span>)
+    <span class="kw">public</span> <span class="cls">SecurityFilterChain</span> <span class="fn">webFilterChain</span>(<span class="cls">HttpSecurity</span> http) <span class="kw">throws</span> <span class="cls">Exception</span> {
+        <span class="kw">return</span> http
+            .<span class="fn">authorizeHttpRequests</span>(a -> a
+                .<span class="fn">requestMatchers</span>(<span class="str">"/login"</span>, <span class="str">"/register"</span>).<span class="fn">permitAll</span>()
+                .<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>())
+            .<span class="fn">formLogin</span>(f -> f
+                .<span class="fn">loginPage</span>(<span class="str">"/login"</span>).<span class="fn">defaultSuccessUrl</span>(<span class="str">"/token"</span>, <span class="kw">true</span>))
+            .<span class="fn">logout</span>(l -> l
+                .<span class="fn">logoutRequestMatcher</span>(req ->      <span class="cm">// AntPathRequestMatcher removed in Sec 7.x</span>
+                    <span class="str">"GET"</span>.<span class="fn">equals</span>(req.<span class="fn">getMethod</span>()) && <span class="str">"/logout"</span>.<span class="fn">equals</span>(req.<span class="fn">getRequestURI</span>()))
+                .<span class="fn">logoutSuccessUrl</span>(<span class="str">"/login?logout"</span>))
+            .<span class="fn">build</span>();
+    }
+
+    <span class="cm">// ── Completely bypass chains for static assets ───────────</span>
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cls">WebSecurityCustomizer</span> <span class="fn">webSecurityCustomizer</span>() {
+        <span class="cm">// MVC matchers silently fail for paths with no @Controller mapping in Sec 7.x</span>
+        <span class="cm">// → Use web.ignoring() instead of permitAll() for WebJars/Swagger/static</span>
+        <span class="kw">return</span> web -> web.<span class="fn">ignoring</span>().<span class="fn">requestMatchers</span>(
+            <span class="str">"/webjars/**"</span>, <span class="str">"/swagger-ui/**"</span>, <span class="str">"/v3/api-docs/**"</span>
+        );
+    }
+
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cls">AuthenticationProvider</span> <span class="fn">authenticationProvider</span>() {
+        <span class="kw">var</span> provider = <span class="kw">new</span> <span class="cls">DaoAuthenticationProvider</span>();
+        provider.<span class="fn">setUserDetailsService</span>(userDetailsService);
+        provider.<span class="fn">setPasswordEncoder</span>(<span class="kw">new</span> <span class="cls">BCryptPasswordEncoder</span>(<span class="num">12</span>));
+        <span class="kw">return</span> provider;
+    }
+
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cls">PasswordEncoder</span> <span class="fn">passwordEncoder</span>() {
+        <span class="kw">return new</span> <span class="cls">BCryptPasswordEncoder</span>(<span class="num">12</span>);
+    }
+}</pre>
+</div>
+
+<div class="note info">
+  <strong>📘 Why two chains instead of one?</strong>
+  A single chain can only have one session policy. JWT auth needs <code>NEVER</code> (no sessions at all); form login needs sessions to keep the user logged in between page loads. Two chains with <code>@Order</code> let each path get the policy it needs — <code>/api/**</code> gets stateless JWT, everything else gets session-based form login.
+</div>
+
+<!-- ──────────────── 11. JWT FILTER ──────────────── -->
+<h2 id="jwtfilter">11. Custom JWT Filter</h2>
+
+<p>For <code>/api/**</code> requests, the JWT filter intercepts every request, validates the Bearer token, and populates Spring's <code>SecurityContext</code> so downstream code knows who the caller is.</p>
+
+<div class="badge">Memento — filter/JwtAuthFilter.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">filter/JwtAuthFilter.java</span></div>
+  <pre><span class="ann">@Component</span>  <span class="cm">// registered as a bean</span>
+<span class="kw">public class</span> <span class="cls">JwtAuthFilter</span> <span class="kw">extends</span> <span class="cls">OncePerRequestFilter</span> {
+    <span class="cm">// OncePerRequestFilter guarantees exactly one execution per request,</span>
+    <span class="cm">// even across internal forwards/includes</span>
+
+    <span class="kw">private final</span> <span class="cls">JwtUtil</span> jwtUtil;
+    <span class="kw">private final</span> <span class="cls">CustomUserDetailsService</span> userDetailsService;
+
+    <span class="kw">public</span> <span class="fn">JwtAuthFilter</span>(<span class="cls">JwtUtil</span> jwtUtil, <span class="cls">CustomUserDetailsService</span> uds) {
+        <span class="kw">this</span>.jwtUtil = jwtUtil;
+        <span class="kw">this</span>.userDetailsService = uds;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">doFilterInternal</span>(<span class="cls">HttpServletRequest</span> request,
+                                      <span class="cls">HttpServletResponse</span> response,
+                                      <span class="cls">FilterChain</span> chain)
+            <span class="kw">throws</span> <span class="cls">ServletException</span>, <span class="cls">IOException</span> {
+
+        <span class="cls">String</span> header = request.<span class="fn">getHeader</span>(<span class="str">"Authorization"</span>);
+
+        <span class="kw">if</span> (header == <span class="kw">null</span> || !header.<span class="fn">startsWith</span>(<span class="str">"Bearer "</span>)) {
+            chain.<span class="fn">doFilter</span>(request, response); <span class="cm">// no token → pass through</span>
+            <span class="kw">return</span>;
+        }
+
+        <span class="cls">String</span> token = header.<span class="fn">substring</span>(<span class="num">7</span>); <span class="cm">// strip "Bearer " prefix</span>
+        <span class="cls">String</span> username = jwtUtil.<span class="fn">extractUsername</span>(token);
+
+        <span class="kw">if</span> (username != <span class="kw">null</span> && <span class="cls">SecurityContextHolder</span>.<span class="fn">getContext</span>().<span class="fn">getAuthentication</span>() == <span class="kw">null</span>) {
+            <span class="cls">UserDetails</span> userDetails = userDetailsService.<span class="fn">loadUserByUsername</span>(username);
+
+            <span class="kw">if</span> (jwtUtil.<span class="fn">isTokenValid</span>(token, userDetails)) {
+                <span class="cm">// Create auth token and put it in the SecurityContext</span>
+                <span class="kw">var</span> authToken = <span class="kw">new</span> <span class="cls">UsernamePasswordAuthenticationToken</span>(
+                    userDetails, <span class="kw">null</span>, userDetails.<span class="fn">getAuthorities</span>()
+                );
+                authToken.<span class="fn">setDetails</span>(<span class="kw">new</span> <span class="cls">WebAuthenticationDetailsSource</span>().<span class="fn">buildDetails</span>(request));
+                <span class="cls">SecurityContextHolder</span>.<span class="fn">getContext</span>().<span class="fn">setAuthentication</span>(authToken);
+            }
+        }
+        chain.<span class="fn">doFilter</span>(request, response);
+    }
+}
+
+<span class="cm">// ── CRITICAL: prevent double-registration ──────────────────────────</span>
+<span class="cm">// Spring Boot auto-registers ALL @Component beans that are Filters as</span>
+<span class="cm">// global servlet filters. JwtAuthFilter is also added manually inside</span>
+<span class="cm">// the security chain → it would run TWICE without this.</span>
+<span class="ann">@Bean</span>
+<span class="kw">public</span> <span class="cls">FilterRegistrationBean</span>&lt;<span class="cls">JwtAuthFilter</span>&gt; <span class="fn">jwtFilterRegistration</span>(<span class="cls">JwtAuthFilter</span> filter) {
+    <span class="kw">var</span> reg = <span class="kw">new</span> <span class="cls">FilterRegistrationBean</span>&lt;&gt;(filter);
+    reg.<span class="fn">setEnabled</span>(<span class="kw">false</span>); <span class="cm">// disable global auto-registration</span>
+    <span class="kw">return</span> reg;
+}</pre>
+</div>
+
+<!-- ──────────────── 12. USERDETAILS ──────────────── -->
+<h2 id="userdetails">12. UserDetails &amp; UserDetailsService</h2>
+
+<p>Spring Security works with its own <code>UserDetails</code> interface — it doesn't know about your <code>User</code> entity directly. You create a wrapper class that adapts your entity to what Spring expects. This cleanly separates your persistence layer from your security layer.</p>
+
+<div class="badge">Memento — config/AppUserDetails.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">config/AppUserDetails.java</span></div>
+  <pre><span class="kw">public class</span> <span class="cls">AppUserDetails</span> <span class="kw">implements</span> <span class="cls">UserDetails</span> {
+
+    <span class="kw">private final</span> <span class="cls">User</span> user;
+
+    <span class="kw">public</span> <span class="fn">AppUserDetails</span>(<span class="cls">User</span> user) { <span class="kw">this</span>.user = user; }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="cls">Collection</span>&lt;? <span class="kw">extends</span> <span class="cls">GrantedAuthority</span>&gt; <span class="fn">getAuthorities</span>() {
+        <span class="cm">// ROLE_ prefix convention: enum stores "ADMIN", Spring needs "ROLE_ADMIN"</span>
+        <span class="kw">return</span> <span class="cls">List</span>.<span class="fn">of</span>(<span class="kw">new</span> <span class="cls">SimpleGrantedAuthority</span>(<span class="str">"ROLE_"</span> + user.<span class="fn">getRole</span>().<span class="fn">name</span>()));
+    }
+
+    <span class="ann">@Override</span> <span class="kw">public</span> <span class="cls">String</span> <span class="fn">getPassword</span>()               { <span class="kw">return</span> user.<span class="fn">getPassword</span>(); }
+    <span class="ann">@Override</span> <span class="kw">public</span> <span class="cls">String</span> <span class="fn">getUsername</span>()               { <span class="kw">return</span> user.<span class="fn">getUsername</span>(); }
+
+    <span class="cm">// All four lifecycle methods must be explicitly implemented — no defaults</span>
+    <span class="ann">@Override</span> <span class="kw">public boolean</span> <span class="fn">isAccountNonExpired</span>()   { <span class="kw">return true</span>; }
+    <span class="ann">@Override</span> <span class="kw">public boolean</span> <span class="fn">isAccountNonLocked</span>()    { <span class="kw">return true</span>; }
+    <span class="ann">@Override</span> <span class="kw">public boolean</span> <span class="fn">isCredentialsNonExpired</span>() { <span class="kw">return true</span>; }
+    <span class="ann">@Override</span> <span class="kw">public boolean</span> <span class="fn">isEnabled</span>()              { <span class="kw">return true</span>; }
+
+    <span class="kw">public</span> <span class="cls">Long</span> <span class="fn">getUserId</span>() { <span class="kw">return</span> user.<span class="fn">getId</span>(); } <span class="cm">// helper for service layer</span>
+}
+
+<span class="cm">// ── UserDetailsService — called by Spring during form login ────────</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cls">CustomUserDetailsService</span> <span class="kw">implements</span> <span class="cls">UserDetailsService</span> {
+
+    <span class="kw">private final</span> <span class="cls">UserRepository</span> userRepository;
+
+    <span class="kw">public</span> <span class="fn">CustomUserDetailsService</span>(<span class="cls">UserRepository</span> userRepository) {
+        <span class="kw">this</span>.userRepository = userRepository;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="cls">UserDetails</span> <span class="fn">loadUserByUsername</span>(<span class="cls">String</span> username) <span class="kw">throws</span> <span class="cls">UsernameNotFoundException</span> {
+        <span class="cls">User</span> user = userRepository.<span class="fn">findByUsername</span>(username)
+            .<span class="fn">orElseThrow</span>(() -> <span class="kw">new</span> <span class="cls">UsernameNotFoundException</span>(<span class="str">"User not found: "</span> + username));
+        <span class="kw">return new</span> <span class="cls">AppUserDetails</span>(user);
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 13. JWT ──────────────── -->
+<h2 id="jwt">13. JWT with JJWT 0.12.6</h2>
+
+<p>A JWT (JSON Web Token) is a compact, signed string — three Base64-encoded parts separated by dots: <code>header.payload.signature</code>. The signature is what makes it trustworthy: only the server that holds the secret key can produce a valid one.</p>
+
+<div class="badge">Memento — config/JwtUtil.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">config/JwtUtil.java</span></div>
+  <pre><span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="cls">JwtUtil</span> {
+
+    <span class="ann">@Value</span>(<span class="str">"${app.jwt.secret}"</span>)
+    <span class="kw">private</span> <span class="cls">String</span> secretString;
+
+    <span class="ann">@Value</span>(<span class="str">"${app.jwt.expiration-ms}"</span>)
+    <span class="kw">private long</span> expirationMs;
+
+    <span class="kw">private</span> <span class="cls">SecretKey</span> signingKey;
+
+    <span class="ann">@PostConstruct</span>
+    <span class="cm">// Runs once after the bean is created — caches the key so we don't</span>
+    <span class="cm">// re-derive it on every request. Base64 decode + HMAC derivation is</span>
+    <span class="cm">// cryptographic work — doing it per request is wasteful.</span>
+    <span class="kw">public void</span> <span class="fn">init</span>() {
+        <span class="kw">byte</span>[] keyBytes = <span class="cls">Decoders</span>.BASE64.<span class="fn">decode</span>(secretString);
+        <span class="kw">this</span>.signingKey = <span class="cls">Keys</span>.<span class="fn">hmacShaKeyFor</span>(keyBytes);
+    }
+
+    <span class="kw">public</span> <span class="cls">String</span> <span class="fn">generateToken</span>(<span class="cls">AppUserDetails</span> userDetails) {
+        <span class="kw">return</span> <span class="cls">Jwts</span>.<span class="fn">builder</span>()
+            .<span class="fn">subject</span>(userDetails.<span class="fn">getUsername</span>())
+            .<span class="fn">claim</span>(<span class="str">"userId"</span>, userDetails.<span class="fn">getUserId</span>())
+            .<span class="fn">claim</span>(<span class="str">"role"</span>,   userDetails.<span class="fn">getAuthorities</span>().<span class="fn">iterator</span>().<span class="fn">next</span>().<span class="fn">getAuthority</span>())
+            .<span class="fn">issuedAt</span>(<span class="kw">new</span> <span class="cls">Date</span>())
+            .<span class="fn">expiration</span>(<span class="kw">new</span> <span class="cls">Date</span>(<span class="cls">System</span>.<span class="fn">currentTimeMillis</span>() + expirationMs))
+            .<span class="fn">signWith</span>(signingKey)
+            .<span class="fn">compact</span>();
+    }
+
+    <span class="kw">public</span> <span class="cls">String</span> <span class="fn">extractUsername</span>(<span class="cls">String</span> token) {
+        <span class="kw">return</span> <span class="fn">parseClaims</span>(token).<span class="fn">getSubject</span>();
+    }
+
+    <span class="kw">public boolean</span> <span class="fn">isTokenValid</span>(<span class="cls">String</span> token, <span class="cls">UserDetails</span> userDetails) {
+        <span class="kw">return</span> <span class="fn">extractUsername</span>(token).<span class="fn">equals</span>(userDetails.<span class="fn">getUsername</span>())
+            && !<span class="fn">isTokenExpired</span>(token);
+    }
+
+    <span class="kw">private</span> <span class="cls">Claims</span> <span class="fn">parseClaims</span>(<span class="cls">String</span> token) {
+        <span class="kw">return</span> <span class="cls">Jwts</span>.<span class="fn">parser</span>()
+            .<span class="fn">verifyWith</span>(signingKey)
+            .<span class="fn">build</span>()
+            .<span class="fn">parseSignedClaims</span>(token)  <span class="cm">// throws if signature invalid or expired</span>
+            .<span class="fn">getPayload</span>();
+    }
+
+    <span class="kw">private boolean</span> <span class="fn">isTokenExpired</span>(<span class="cls">String</span> token) {
+        <span class="kw">return</span> <span class="fn">parseClaims</span>(token).<span class="fn">getExpiration</span>().<span class="fn">before</span>(<span class="kw">new</span> <span class="cls">Date</span>());
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 14. CACHE ──────────────── -->
+<h2 id="cache">14. Caching with Spring Cache + Caffeine</h2>
+
+<p>Every time an AI agent calls <code>GET /api/bookmarks</code> — which can happen frequently — without caching you'd hit the database every single time. Spring's caching abstraction with <strong>Caffeine</strong> (an in-process cache) solves this elegantly using annotations.</p>
+
+<div class="badge">Memento — service/BookMarkService.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">service/BookMarkService.java</span></div>
+  <pre><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cls">BookMarkService</span> {
+
+    <span class="kw">private final</span> <span class="cls">BookMarkRepository</span> bookMarkRepository;
+    <span class="kw">private final</span> <span class="cls">UserRepository</span> userRepository;
+
+    <span class="cm">// Returns the ID of the currently authenticated user from SecurityContext</span>
+    <span class="cm">// Must be public — Spring's SpEL calls it via reflection in cache key expressions</span>
+    <span class="kw">public</span> <span class="cls">Long</span> <span class="fn">currentUserId</span>() {
+        <span class="kw">var</span> auth = (<span class="cls">AppUserDetails</span>) <span class="cls">SecurityContextHolder</span>.<span class="fn">getContext</span>()
+                        .<span class="fn">getAuthentication</span>().<span class="fn">getPrincipal</span>();
+        <span class="kw">return</span> auth.<span class="fn">getUserId</span>();
+    }
+
+    <span class="cm">// Cache key is per-user: "all:42", "all:7", etc.</span>
+    <span class="cm">// Result is served from cache on repeat calls — no DB query</span>
+    <span class="ann">@Cacheable</span>(value = <span class="str">"bookmarks"</span>, key = <span class="str">"'all:' + #root.target.currentUserId()"</span>)
+    <span class="kw">public</span> <span class="cls">List</span>&lt;<span class="cls">BookMark</span>&gt; <span class="fn">getAllBookmarks</span>() {
+        <span class="kw">return</span> bookMarkRepository.<span class="fn">findByUserId</span>(<span class="fn">currentUserId</span>());
+    }
+
+    <span class="cm">// After any write, clear the entire cache so next read is fresh</span>
+    <span class="ann">@CacheEvict</span>(value = <span class="str">"bookmarks"</span>, allEntries = <span class="kw">true</span>)
+    <span class="kw">public</span> <span class="cls">BookMark</span> <span class="fn">addBookmark</span>(<span class="cls">BookMark</span> bookMark) {
+        <span class="kw">if</span> (bookMarkRepository.<span class="fn">existsByTitleAndUserId</span>(bookMark.<span class="fn">getTitle</span>(), <span class="fn">currentUserId</span>()))
+            <span class="kw">throw new</span> <span class="cls">BookMarkExistException</span>(bookMark.<span class="fn">getTitle</span>());
+        bookMark.<span class="fn">setUserId</span>(<span class="fn">currentUserId</span>());
+        <span class="kw">return</span> bookMarkRepository.<span class="fn">save</span>(bookMark);
+    }
+
+    <span class="ann">@CacheEvict</span>(value = <span class="str">"bookmarks"</span>, allEntries = <span class="kw">true</span>)
+    <span class="kw">public void</span> <span class="fn">deleteBookmark</span>(<span class="cls">String</span> title) {
+        <span class="kw">if</span> (!bookMarkRepository.<span class="fn">existsByTitleAndUserId</span>(title, <span class="fn">currentUserId</span>()))
+            <span class="kw">throw new</span> <span class="cls">BookMarkNotFoundException</span>(title);
+        bookMarkRepository.<span class="fn">deleteByTitleAndUserId</span>(title, <span class="fn">currentUserId</span>());
+    }
+}</pre>
+</div>
+
+<p>The cache is configured in <code>application.properties</code>:</p>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">application.properties — cache config</span></div>
+  <pre><span class="prop">spring.cache.type</span>=<span class="val">caffeine</span>
+<span class="prop">spring.cache.caffeine.spec</span>=<span class="val">maximumSize=500,expireAfterWrite=10m</span>
+<span class="cm"># max 500 entries, each expires 10 minutes after being written</span></pre>
+</div>
+
+<!-- ──────────────── 15. VALIDATION ──────────────── -->
+<h2 id="validation">15. Bean Validation &amp; Global Exception Handling</h2>
+
+<p>Bean Validation (JSR-380) lets you put constraint annotations directly on your model fields. When <code>@Valid</code> appears on a <code>@RequestBody</code> parameter, Spring runs all constraints before the method executes. If any fail, it throws <code>MethodArgumentNotValidException</code> — which you catch centrally.</p>
+
+<div class="badge">Memento — exception/GlobalExceptionHandler.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">exception/GlobalExceptionHandler.java</span></div>
+  <pre><span class="ann">@RestControllerAdvice</span>  <span class="cm">// = @ControllerAdvice + @ResponseBody</span>
+<span class="kw">public class</span> <span class="cls">GlobalExceptionHandler</span> {
+
+    <span class="cm">// 404 — bookmark not found</span>
+    <span class="ann">@ExceptionHandler</span>(<span class="cls">BookMarkNotFoundException</span>.class)
+    <span class="ann">@ResponseStatus</span>(<span class="cls">HttpStatus</span>.NOT_FOUND)
+    <span class="kw">public</span> <span class="cls">Map</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; <span class="fn">handleNotFound</span>(<span class="cls">BookMarkNotFoundException</span> ex) {
+        <span class="kw">return</span> <span class="cls">Map</span>.<span class="fn">of</span>(<span class="str">"error"</span>, ex.<span class="fn">getMessage</span>());
+    }
+
+    <span class="cm">// 409 — bookmark title already exists for this user</span>
+    <span class="ann">@ExceptionHandler</span>(<span class="cls">BookMarkExistException</span>.class)
+    <span class="ann">@ResponseStatus</span>(<span class="cls">HttpStatus</span>.CONFLICT)
+    <span class="kw">public</span> <span class="cls">Map</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; <span class="fn">handleConflict</span>(<span class="cls">BookMarkExistException</span> ex) {
+        <span class="kw">return</span> <span class="cls">Map</span>.<span class="fn">of</span>(<span class="str">"error"</span>, ex.<span class="fn">getMessage</span>());
+    }
+
+    <span class="cm">// 400 — @Valid constraint violations, with field-level error map</span>
+    <span class="ann">@ExceptionHandler</span>(<span class="cls">MethodArgumentNotValidException</span>.class)
+    <span class="ann">@ResponseStatus</span>(<span class="cls">HttpStatus</span>.BAD_REQUEST)
+    <span class="kw">public</span> <span class="cls">Map</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; <span class="fn">handleValidation</span>(<span class="cls">MethodArgumentNotValidException</span> ex) {
+        <span class="kw">return</span> ex.<span class="fn">getBindingResult</span>().<span class="fn">getFieldErrors</span>().<span class="fn">stream</span>()
+            .<span class="fn">collect</span>(<span class="cls">Collectors</span>.<span class="fn">toMap</span>(
+                <span class="cls">FieldError</span>::<span class="fn">getField</span>,
+                e -> e.<span class="fn">getDefaultMessage</span>() != <span class="kw">null</span> ? e.<span class="fn">getDefaultMessage</span>() : <span class="str">"Invalid"</span>
+            ));
+    }
+
+    <span class="cm">// 404 — missing static resources (without this, falls through to 500)</span>
+    <span class="ann">@ExceptionHandler</span>(<span class="cls">NoResourceFoundException</span>.class)
+    <span class="ann">@ResponseStatus</span>(<span class="cls">HttpStatus</span>.NOT_FOUND)
+    <span class="kw">public</span> <span class="cls">Map</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; <span class="fn">handleNoResource</span>(<span class="cls">NoResourceFoundException</span> ex) {
+        <span class="kw">return</span> <span class="cls">Map</span>.<span class="fn">of</span>(<span class="str">"error"</span>, <span class="str">"Resource not found"</span>);
+    }
+
+    <span class="cm">// 500 — catch-all for anything unexpected</span>
+    <span class="ann">@ExceptionHandler</span>(<span class="cls">Exception</span>.class)
+    <span class="ann">@ResponseStatus</span>(<span class="cls">HttpStatus</span>.INTERNAL_SERVER_ERROR)
+    <span class="kw">public</span> <span class="cls">Map</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; <span class="fn">handleGeneric</span>(<span class="cls">Exception</span> ex) {
+        <span class="kw">return</span> <span class="cls">Map</span>.<span class="fn">of</span>(<span class="str">"error"</span>, <span class="str">"Internal server error"</span>);
+    }
+}</pre>
+</div>
+
+<!-- ──────────────── 16. RATE LIMITING ──────────────── -->
+<h2 id="ratelimit">16. Rate Limiting with Bucket4j</h2>
+
+<p>The app is accessible to AI agents that can fire requests rapidly. Without rate limiting, a runaway agent or a bad actor could hammer the API. Memento uses <strong>Bucket4j's token bucket algorithm</strong> — each IP gets a bucket of tokens; each request consumes one; tokens refill over time.</p>
+
+<div class="badge">Memento — filter/RateLimitFilter.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">filter/RateLimitFilter.java</span></div>
+  <pre><span class="ann">@Component</span>
+<span class="ann">@Order</span>(<span class="cls">Ordered</span>.HIGHEST_PRECEDENCE) <span class="cm">// runs before security chain</span>
+<span class="kw">public class</span> <span class="cls">RateLimitFilter</span> <span class="kw">extends</span> <span class="cls">OncePerRequestFilter</span> {
+
+    <span class="ann">@Value</span>(<span class="str">"${app.rate-limit.capacity}"</span>)
+    <span class="kw">private int</span> capacity;
+
+    <span class="ann">@Value</span>(<span class="str">"${app.rate-limit.refill-per-minute}"</span>)
+    <span class="kw">private int</span> refillPerMinute;
+
+    <span class="cm">// One bucket per IP, created lazily — no pre-allocation needed</span>
+    <span class="kw">private final</span> <span class="cls">ConcurrentHashMap</span>&lt;<span class="cls">String</span>, <span class="cls">Bucket</span>&gt; buckets = <span class="kw">new</span> <span class="cls">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="kw">private</span> <span class="cls">Bucket</span> <span class="fn">bucketFor</span>(<span class="cls">String</span> ip) {
+        <span class="kw">return</span> buckets.<span class="fn">computeIfAbsent</span>(ip, k -> <span class="cls">Bucket</span>.<span class="fn">builder</span>()
+            .<span class="fn">addLimit</span>(<span class="cls">Bandwidth</span>.<span class="fn">builder</span>()
+                .<span class="fn">capacity</span>(capacity)
+                <span class="cm">// Greedy refill: tokens added continuously over the minute,</span>
+                <span class="cm">// not all at once — smooths burst abuse at refill boundaries</span>
+                .<span class="fn">refillGreedy</span>(refillPerMinute, <span class="cls">Duration</span>.<span class="fn">ofMinutes</span>(<span class="num">1</span>))
+                .<span class="fn">build</span>())
+            .<span class="fn">build</span>());
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">protected void</span> <span class="fn">doFilterInternal</span>(<span class="cls">HttpServletRequest</span> req, <span class="cls">HttpServletResponse</span> res,
+                                      <span class="cls">FilterChain</span> chain) <span class="kw">throws</span> <span class="cls">ServletException</span>, <span class="cls">IOException</span> {
+        <span class="cm">// Skip rate limiting for Swagger/WebJar static assets (~7 requests per page load)</span>
+        <span class="cls">String</span> path = req.<span class="fn">getRequestURI</span>();
+        <span class="kw">if</span> (path.<span class="fn">startsWith</span>(<span class="str">"/swagger-ui/"</span>) || path.<span class="fn">startsWith</span>(<span class="str">"/webjars/"</span>)
+                || path.<span class="fn">startsWith</span>(<span class="str">"/v3/api-docs"</span>)) {
+            chain.<span class="fn">doFilter</span>(req, res);
+            <span class="kw">return</span>;
+        }
+
+        <span class="cls">String</span> ip = req.<span class="fn">getRemoteAddr</span>();
+        <span class="kw">if</span> (!<span class="fn">bucketFor</span>(ip).<span class="fn">tryConsume</span>(<span class="num">1</span>)) {
+            res.<span class="fn">setStatus</span>(<span class="num">429</span>); <span class="cm">// 429 Too Many Requests</span>
+            res.<span class="fn">setContentType</span>(<span class="str">"application/json"</span>);
+            res.<span class="fn">getWriter</span>().<span class="fn">write</span>(<span class="str">"{\"error\":\"Too many requests. Please slow down.\"}"</span>);
+            <span class="kw">return</span>;
+        }
+        chain.<span class="fn">doFilter</span>(req, res);
+    }
+}</pre>
+</div>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">application.properties — rate limit config</span></div>
+  <pre><span class="prop">app.rate-limit.capacity</span>=<span class="val">15</span>         <span class="cm"># bucket size: max 15 tokens</span>
+<span class="prop">app.rate-limit.refill-per-minute</span>=<span class="val">15</span> <span class="cm"># refill rate: 15 tokens/minute</span></pre>
+</div>
+
+<!-- ──────────────── 17. THYMELEAF ──────────────── -->
+<h2 id="thymeleaf">17. Thymeleaf — Server-Side Views</h2>
+
+<p>The browser-facing part of Memento uses <strong>Thymeleaf</strong>, Spring Boot's default server-side templating engine. Unlike <code>@RestController</code> which returns JSON, a <code>@Controller</code> returns view names that Thymeleaf resolves to HTML templates in <code>src/main/resources/templates/</code>.</p>
+
+<div class="badge">Memento — controller/AuthController.java</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">controller/AuthController.java</span></div>
+  <pre><span class="ann">@Controller</span>  <span class="cm">// not @RestController — returns view names, not JSON</span>
+<span class="kw">public class</span> <span class="cls">AuthController</span> {
+
+    <span class="kw">private final</span> <span class="cls">JwtUtil</span> jwtUtil;
+
+    <span class="kw">public</span> <span class="fn">AuthController</span>(<span class="cls">JwtUtil</span> jwtUtil) { <span class="kw">this</span>.jwtUtil = jwtUtil; }
+
+    <span class="ann">@GetMapping</span>(<span class="str">"/token"</span>)
+    <span class="kw">public</span> <span class="cls">String</span> <span class="fn">tokenPage</span>(<span class="cls">Model</span> model, <span class="ann">@AuthenticationPrincipal</span> <span class="cls">AppUserDetails</span> user) {
+        model.<span class="fn">addAttribute</span>(<span class="str">"username"</span>, user.<span class="fn">getUsername</span>());
+        model.<span class="fn">addAttribute</span>(<span class="str">"token"</span>, jwtUtil.<span class="fn">generateToken</span>(user));
+        <span class="kw">return</span> <span class="str">"token"</span>; <span class="cm">// resolves to templates/token.html</span>
+    }
+}</pre>
+</div>
+
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">templates/login.html — Thymeleaf + WebJars Bootstrap</span></div>
+  <pre><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">xmlns:th</span>=<span class="val">"http://www.thymeleaf.org"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+  <span class="cm">&lt;!-- Bootstrap served from JAR via WebJars — no CDN dependency --&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span>
+        <span class="attr">th:href</span>=<span class="val">"@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="cm">&lt;!-- th:if="${error}" shows alert only when error param is present --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">th:if</span>=<span class="val">"${param.error}"</span> <span class="attr">class</span>=<span class="val">"alert alert-danger"</span><span class="tag">&gt;</span>
+    Invalid username or password.
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">th:if</span>=<span class="val">"${param.logout}"</span> <span class="attr">class</span>=<span class="val">"alert alert-success"</span><span class="tag">&gt;</span>
+    You have been logged out.
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;form</span> <span class="attr">th:action</span>=<span class="val">"@{/login}"</span> <span class="attr">method</span>=<span class="val">"post"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"text"</span>     <span class="attr">name</span>=<span class="val">"username"</span> <span class="attr">placeholder</span>=<span class="val">"Username"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"password"</span> <span class="attr">name</span>=<span class="val">"password"</span> <span class="attr">placeholder</span>=<span class="val">"Password"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag">&gt;</span>Login<span class="tag">&lt;/button&gt;</span>
+  <span class="tag">&lt;/form&gt;</span>
+<span class="tag">&lt;/body&gt;&lt;/html&gt;</span></pre>
+</div>
+
+<!-- ──────────────── 18. ACTUATOR + OPENAPI ──────────────── -->
+<h2 id="actuator">18. Actuator, OpenAPI &amp; Production Config</h2>
+
+<h3>Spring Boot Actuator</h3>
+<p>Actuator exposes built-in endpoints for monitoring. Memento only exposes <code>health</code> and <code>info</code> — the minimum needed for Docker healthchecks without leaking database or disk details to the public.</p>
+
+<h3>OpenAPI / Swagger</h3>
+<p><code>springdoc-openapi</code> auto-generates interactive API documentation from your annotations. It scans your controllers and produces a full Swagger UI at <code>/swagger-ui/index.html</code> — essential for handing off the API to an AI agent.</p>
+
+<h3>HikariCP connection pool</h3>
+<p>The default pool size in Spring Boot is 10 connections. On a 1 GB VPS with PostgreSQL's default <code>max_connections=20</code>, opening 10+ connections just for the app would leave nothing for migrations, monitoring, or other tools. Memento tunes it down deliberately.</p>
+
+<div class="badge">Memento — complete application.properties</div>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">application.properties</span></div>
+  <pre><span class="prop">spring.application.name</span>=<span class="val">memento</span>
+
+<span class="cm"># ── Graceful shutdown ─────────────────────────────────────────</span>
+<span class="prop">server.shutdown</span>=<span class="val">graceful</span>
+<span class="prop">spring.lifecycle.timeout-per-shutdown-phase</span>=<span class="val">20s</span>
+<span class="cm"># On SIGTERM: stops accepting new requests, waits up to 20s for in-flight ones</span>
+
+<span class="cm"># ── Database ──────────────────────────────────────────────────</span>
+<span class="prop">spring.datasource.url</span>=<span class="val">${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/memento}</span>
+<span class="prop">spring.datasource.username</span>=<span class="val">${SPRING_DATASOURCE_USERNAME:memento}</span>
+<span class="prop">spring.datasource.password</span>=<span class="val">${SPRING_DATASOURCE_PASSWORD:memento123}</span>
+<span class="prop">spring.jpa.hibernate.ddl-auto</span>=<span class="val">none</span>       <span class="cm"># Flyway owns the schema</span>
+<span class="prop">spring.jpa.open-in-view</span>=<span class="val">false</span>             <span class="cm"># release DB connection after service, not view</span>
+<span class="prop">spring.flyway.enabled</span>=<span class="val">false</span>               <span class="cm"># explicit FlywayConfig.java bean used instead</span>
+
+<span class="cm"># ── HikariCP — sized for 1 GB VPS ────────────────────────────</span>
+<span class="prop">spring.datasource.hikari.maximum-pool-size</span>=<span class="val">3</span>
+<span class="prop">spring.datasource.hikari.minimum-idle</span>=<span class="val">1</span>
+<span class="prop">spring.datasource.hikari.connection-timeout</span>=<span class="val">20000</span>
+<span class="prop">spring.datasource.hikari.idle-timeout</span>=<span class="val">300000</span>
+
+<span class="cm"># ── JWT ───────────────────────────────────────────────────────</span>
+<span class="prop">app.jwt.secret</span>=<span class="val">${JWT_SECRET:bXlTdXBlclNlY3JldEtleVRoYXRJc0xvbmdFbm91Z2gxMjM0NTY=}</span>
+<span class="prop">app.jwt.expiration-ms</span>=<span class="val">86400000</span>           <span class="cm"># 24 hours</span>
+
+<span class="cm"># ── Cache ─────────────────────────────────────────────────────</span>
+<span class="prop">spring.cache.type</span>=<span class="val">caffeine</span>
+<span class="prop">spring.cache.caffeine.spec</span>=<span class="val">maximumSize=500,expireAfterWrite=10m</span>
+
+<span class="cm"># ── Rate limiting ─────────────────────────────────────────────</span>
+<span class="prop">app.rate-limit.capacity</span>=<span class="val">15</span>
+<span class="prop">app.rate-limit.refill-per-minute</span>=<span class="val">15</span>
+
+<span class="cm"># ── Actuator ──────────────────────────────────────────────────</span>
+<span class="prop">management.endpoints.web.exposure.include</span>=<span class="val">health,info</span>
+<span class="prop">management.endpoint.health.show-details</span>=<span class="val">never</span>  <span class="cm"># no DB/disk details in public response</span>
+
+<span class="cm"># ── OpenAPI ───────────────────────────────────────────────────</span>
+<span class="prop">springdoc.paths-to-match</span>=<span class="val">/api/**</span>
+<span class="prop">springdoc.swagger-ui.path</span>=<span class="val">/swagger-ui/index.html</span>
+
+<span class="cm"># ── Logging ───────────────────────────────────────────────────</span>
+<span class="prop">logging.file.name</span>=<span class="val">/var/log/memento/app.log</span>
+<span class="prop">logging.logback.rollingpolicy.max-file-size</span>=<span class="val">10MB</span>
+<span class="prop">logging.logback.rollingpolicy.max-history</span>=<span class="val">30</span>
+<span class="prop">logging.level.root</span>=<span class="val">INFO</span></pre>
+</div>
+
+<div class="note tip">
+  <strong>💡 Environment variable fallbacks</strong>
+  The pattern <code>${ENV_VAR:fallback-value}</code> is Spring's way of reading from environment variables with a safe local dev default. In production Docker containers, real secrets are injected as env vars. Locally, the fallback value connects to <code>localhost:5432</code>. One <code>application.properties</code> file, two environments.
+</div>
+
+<!-- ──────────────── 19. DEPLOYMENT ──────────────── -->
+<h2 id="deploy">19. Deployment — Docker + GitHub Actions</h2>
+
+<p>Memento is deployed to an Oracle Free Tier VPS (1 GB AMD) using a multi-stage Docker build pushed to GitHub Container Registry, then pulled and started on the VPS via SSH in a GitHub Actions workflow.</p>
+
+<h3>Multi-stage Dockerfile</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">Dockerfile</span></div>
+  <pre><span class="cm"># Stage 1 — Build with full JDK 25</span>
+<span class="kw">FROM</span> eclipse-temurin:<span class="num">25</span>-jdk AS builder
+<span class="kw">WORKDIR</span> /app
+<span class="kw">COPY</span> . .
+<span class="kw">RUN</span> ./gradlew bootJar --no-daemon
+
+<span class="cm"># Stage 2 — Run with slim JRE 25 Alpine (much smaller image)</span>
+<span class="kw">FROM</span> eclipse-temurin:<span class="num">25</span>-jre-alpine
+<span class="kw">WORKDIR</span> /app
+<span class="kw">COPY</span> --from=builder /app/build/libs/*.jar app.jar
+<span class="cm"># Cap heap at 350 MB, reduce thread stack to 256 KB — fits in 512 MB container</span>
+<span class="kw">ENV</span> JAVA_TOOL_OPTIONS=<span class="str">"-Xmx350m -Xss256k"</span>
+<span class="kw">EXPOSE</span> <span class="num">8080</span>
+<span class="kw">ENTRYPOINT</span> [<span class="str">"java"</span>, <span class="str">"-jar"</span>, <span class="str">"app.jar"</span>]</pre>
+</div>
+
+<h3>GitHub Actions CI/CD</h3>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">.github/workflows/deploy.yml</span></div>
+  <pre><span class="fn">on</span>:
+  <span class="fn">push</span>:
+    <span class="fn">branches</span>: [main]
+
+<span class="fn">jobs</span>:
+  <span class="fn">deploy</span>:
+    <span class="fn">runs-on</span>: ubuntu-latest
+    <span class="fn">steps</span>:
+      - <span class="fn">uses</span>: actions/checkout@v4
+
+      <span class="cm"># Log in to GitHub Container Registry (ghcr.io)</span>
+      <span class="cm"># GITHUB_TOKEN is auto-provided — no PAT needed for same-repo packages</span>
+      - <span class="fn">name</span>: Log in to ghcr.io
+        <span class="fn">run</span>: echo <span class="str">"${{ secrets.GITHUB_TOKEN }}"</span> | docker login ghcr.io -u <span class="str">"${{ github.actor }}"</span> --password-stdin
+
+      - <span class="fn">name</span>: Build and push image
+        <span class="fn">run</span>: |
+          docker build -t ghcr.io/${{ github.repository }}:latest .
+          docker push ghcr.io/${{ github.repository }}:latest
+
+      - <span class="fn">name</span>: Deploy to VPS
+        <span class="fn">run</span>: |
+          <span class="cm"># Copy compose file then SSH to pull and restart only the app container</span>
+          <span class="cm"># DB container is never restarted — avoids data loss from accidental recreation</span>
+          scp docker-compose.yml user@vps:/opt/memento/
+          ssh user@vps "cd /opt/memento && docker compose pull app && docker compose up -d app"</pre>
+</div>
+
+<h3>Known gotchas — Spring Boot 4.x / Security 7.x</h3>
+<table class="fix-table">
+  <thead><tr><th>Issue</th><th>Root Cause</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Flyway silent no-op</td>
+      <td>FlywayAutoConfiguration skips when flyway-database-postgresql on classpath</td>
+      <td>Explicit @Bean(initMethod="migrate") + spring.flyway.enabled=false</td>
+    </tr>
+    <tr>
+      <td>WebJar CSS blocked for unauthenticated users</td>
+      <td>Security 7.x MVC matchers silently fail for paths with no @Controller</td>
+      <td>WebSecurityCustomizer → web.ignoring().requestMatchers("/webjars/**")</td>
+    </tr>
+    <tr>
+      <td>JWT filter runs twice</td>
+      <td>@Component auto-registers as global servlet filter AND inside security chain</td>
+      <td>FilterRegistrationBean(enabled=false)</td>
+    </tr>
+    <tr>
+      <td>AntPathRequestMatcher removed</td>
+      <td>Removed in Spring Security 7.x</td>
+      <td>Lambda: .logoutRequestMatcher(req → "GET".equals(method) &amp;&amp; "/logout".equals(uri))</td>
+    </tr>
+    <tr>
+      <td>open-in-view warning on startup</td>
+      <td>Default is true — keeps DB connection open through view rendering</td>
+      <td>spring.jpa.open-in-view=false</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr class="div" />
+
+<h2>The Full Memento Request Flow</h2>
+<div class="cb">
+  <div class="cb-hdr"><div class="d dr"></div><div class="d dy"></div><div class="d dg"></div><span class="fn">How a GET /api/bookmarks request flows through Memento</span></div>
+  <pre><span class="cm">  HTTP Request: GET /api/bookmarks</span>
+  <span class="cm">  Authorization: Bearer eyJhbGci...</span>
+           │
+           ▼
+  <span class="cls">RateLimitFilter</span>        ← checks per-IP token bucket (Bucket4j)
+           │
+           ▼
+  <span class="cls">JwtAuthFilter</span>          ← validates token, sets SecurityContext
+  (Chain 1, @Order(1))
+           │
+           ▼
+  <span class="cls">DispatcherServlet</span>      ← Spring MVC front controller
+           │
+           ▼
+  <span class="cls">BookMarkController</span>     ← @RestController, @GetMapping
+           │
+           ▼
+  <span class="cls">BookMarkService</span>        ← checks Caffeine cache first
+           │                  (cache hit → return immediately)
+           │                  (cache miss → query DB, store in cache)
+           ▼
+  <span class="cls">BookMarkRepository</span>     ← Spring Data JPA
+           │
+           ▼
+  <span class="cls">Hibernate</span>              ← generates SQL
+           │
+           ▼
+  <span class="cls">HikariCP</span>               ← borrows connection from pool (max 3)
+           │
+           ▼
+  <span class="cls">PostgreSQL</span>             ← executes query, returns rows
+           │
+           ▼ (same path back up)
+  <span class="str">JSON response</span>          ← 200 OK, [{title, url}, ...]</pre>
+</div>
+
+</div><!-- end .article -->
+
+<div class="footer">
+  <p><strong>Spring Boot — A Beginner's Complete Guide</strong></p>
+  <p style="margin-top:8px;">Built through Memento — a real production app running on Java 25 &amp; Spring Boot 4.x</p>
+</div>
+
+</body>
+</html>

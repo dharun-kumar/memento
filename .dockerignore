@@ -6,6 +6,4 @@
 .gradle
 build
 *.md
-.env
-.env.*
-!.env.example
+docs
