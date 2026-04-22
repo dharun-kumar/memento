@@ -1,0 +1,276 @@
+@startuml Memento Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam packageBackgroundColor #F8F8F8
+skinparam classBorderColor #888888
+skinparam classBackgroundColor #FFFFFF
+skinparam arrowColor #555555
+skinparam linetype ortho
+
+' ─────────────────────────────────────────────
+' External / Java stdlib — declared outside all
+' packages so inheritance arrows render cleanly
+' ─────────────────────────────────────────────
+class RuntimeException <<Java>>
+class OncePerRequestFilter <<Spring>>
+interface UserDetails <<Spring Security>>
+interface UserDetailsService <<Spring Security>>
+
+' ════════════════════════════════════════════
+' MODEL
+' ════════════════════════════════════════════
+package "model" #EEF4FB {
+
+    enum Role {
+        ADMIN
+        OPERATOR
+        GUEST
+    }
+
+    class User {
+        - Long id
+        - String username
+        - String password
+        - Role role
+        --
+        + getId() : Long
+        + getUsername() : String
+        + getPassword() : String
+        + getRole() : Role
+    }
+
+    class BookMark {
+        - String title
+        - String description
+        - String tag
+        - Long userId
+        --
+        + getTitle() : String
+        + getDescription() : String
+        + getTag() : String
+        + getUserId() : Long
+    }
+
+    User --> Role : has
+}
+
+' ════════════════════════════════════════════
+' DTO
+' ════════════════════════════════════════════
+package "dto.request" #FEF9EE {
+
+    class UpdateBookMarkRequest <<record>> {
+        + String description
+        + String tag
+    }
+}
+
+' ════════════════════════════════════════════
+' REPOSITORY
+' ════════════════════════════════════════════
+package "repo" #EEF4FB {
+
+    interface UserRepo {
+        + findByUsername(String) : Optional~User~
+        + existsByUsername(String) : boolean
+    }
+
+    interface BookMarkRepo {
+        + findByUserId(Long) : List~BookMark~
+        + findByTitleAndUserId(String, Long) : Optional~BookMark~
+        + findByUserIdAndTag(Long, String) : List~BookMark~
+        + existsByTitleAndUserId(String, Long) : boolean
+        + deleteByTitleAndUserId(String, Long) : void
+    }
+
+    UserRepo ..> User : returns
+    BookMarkRepo ..> BookMark : returns
+}
+
+' ════════════════════════════════════════════
+' EXCEPTION
+' ════════════════════════════════════════════
+package "exception" #FEEEEE {
+
+    class BookMarkNotFoundException {
+        + BookMarkNotFoundException(String title)
+    }
+
+    class BookMarkExistException {
+        + BookMarkExistException(String title)
+    }
+
+    class GlobalExceptionHandler <<RestControllerAdvice>> {
+        --
+        + handleNotFound(BookMarkNotFoundException) : ResponseEntity
+        + handleExist(BookMarkExistException) : ResponseEntity
+        + handleValidation(MethodArgumentNotValidException) : ResponseEntity
+        + handleNoResource(NoResourceFoundException) : ResponseEntity
+        + handleGeneric(Exception) : ResponseEntity
+    }
+
+    GlobalExceptionHandler ..> BookMarkNotFoundException : handles
+    GlobalExceptionHandler ..> BookMarkExistException : handles
+}
+
+' Inheritance to RuntimeException outside the package — renders cleanly
+BookMarkNotFoundException --|> RuntimeException
+BookMarkExistException --|> RuntimeException
+
+' ════════════════════════════════════════════
+' CONFIG
+' ════════════════════════════════════════════
+package "config" #EEF4FB {
+
+    class AppUserDetails {
+        - Long id
+        - String username
+        - String password
+        - Role role
+        --
+        + getId() : Long
+        + getRole() : Role
+        + getAuthorities() : Collection~GrantedAuthority~
+        + isAccountNonExpired() : boolean
+        + isAccountNonLocked() : boolean
+        + isCredentialsNonExpired() : boolean
+        + isEnabled() : boolean
+    }
+
+    class JwtUtil {
+        - String secret
+        - long expirationMs
+        - SecretKey signingKey
+        --
+        + generate(Long, String, Role) : String
+        + parse(String) : Claims
+        + isValid(String) : boolean
+        - init() : void
+    }
+
+    class SecurityConfig {
+        - JwtAuthFilter jwtAuthFilter
+        --
+        + webSecurityCustomizer() : WebSecurityCustomizer
+        + jwtFilterRegistration(JwtAuthFilter) : FilterRegistrationBean
+        + jwtFilterChain(HttpSecurity) : SecurityFilterChain
+        + sessionFilterChain(HttpSecurity) : SecurityFilterChain
+        + passwordEncoder() : PasswordEncoder
+    }
+
+    class FlywayConfig {
+        --
+        + flyway(DataSource) : Flyway
+    }
+
+    AppUserDetails ..|> UserDetails
+    AppUserDetails --> User : wraps
+    AppUserDetails --> Role : has
+}
+
+' ════════════════════════════════════════════
+' SERVICE
+' ════════════════════════════════════════════
+package "service" #EEFBEE {
+
+    class CustomUserDetailsService {
+        - UserRepo userRepo
+        --
+        + loadUserByUsername(String) : UserDetails
+    }
+
+    class BookMarkService {
+        - BookMarkRepo repository
+        --
+        + currentUserId() : Long
+        + getAllBookMarks() : List~BookMark~
+        + getBookMark(String) : Optional~BookMark~
+        + getBookMarksByTag(String) : List~BookMark~
+        + createBookMark(BookMark) : BookMark
+        + updateBookMark(String, UpdateBookMarkRequest) : BookMark
+        + deleteBookMark(String) : void
+    }
+
+    CustomUserDetailsService ..|> UserDetailsService
+    CustomUserDetailsService --> UserRepo : uses
+    CustomUserDetailsService --> AppUserDetails : creates
+
+    BookMarkService --> BookMarkRepo : uses
+    BookMarkService --> UpdateBookMarkRequest : uses
+}
+
+' ════════════════════════════════════════════
+' FILTER
+' ════════════════════════════════════════════
+package "filter" #FEF9EE {
+
+    class JwtAuthFilter {
+        - JwtUtil jwtUtil
+        - CustomUserDetailsService userDetailsService
+        --
+        # doFilterInternal(request, response, chain) : void
+    }
+
+    class RateLimitFilter {
+        - int capacity
+        - int refillPerMinute
+        - Map~String, Bucket~ buckets
+        --
+        # doFilterInternal(request, response, chain) : void
+        - newBucket() : Bucket
+    }
+
+    JwtAuthFilter --|> OncePerRequestFilter
+    RateLimitFilter --|> OncePerRequestFilter
+
+    JwtAuthFilter --> JwtUtil : validates token
+    JwtAuthFilter --> CustomUserDetailsService : loads user
+}
+
+' ════════════════════════════════════════════
+' CONTROLLER
+' ════════════════════════════════════════════
+package "controller" #EEFBEE {
+
+    class BookMarkController {
+        - BookMarkService service
+        --
+        + getAllBookMarks() : ResponseEntity~List~BookMark~~
+        + getBookMarksByTag(String) : ResponseEntity~List~BookMark~~
+        + getBookMark(String) : ResponseEntity~BookMark~
+        + createBookMark(BookMark) : ResponseEntity~BookMark~
+        + updateBookMark(String, UpdateBookMarkRequest) : ResponseEntity~BookMark~
+        + deleteBookMark(String) : ResponseEntity~Void~
+    }
+
+    class AuthController {
+        - JwtUtil jwtUtil
+        --
+        + getToken(Authentication, Model) : String
+    }
+
+    class LoginController {
+        --
+        + loginPage(String, String, Model) : String
+    }
+
+    class RootController {
+        --
+        + root() : RedirectView
+    }
+
+    BookMarkController --> BookMarkService : uses
+    AuthController --> JwtUtil : generates token
+}
+
+' ════════════════════════════════════════════
+' CROSS-PACKAGE RELATIONSHIPS
+' ════════════════════════════════════════════
+SecurityConfig --> JwtAuthFilter : registers
+
+BookMarkService ..> BookMarkNotFoundException : throws
+BookMarkService ..> BookMarkExistException : throws
+
+@enduml
